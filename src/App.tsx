@@ -1,14 +1,21 @@
 import {ChangeEvent, useCallback, useState} from 'react'
-import {Job, useJobActions, useJobs} from './xivapi'
+import {Action, Job, useJobActions, useJobs} from './xivapi'
 
 export function App() {
 	const [job, setJob] = useState<Job>()
+	const [rotation, setRotation] = useState<Action[]>([])
+
+	const appendAction = (action: Action) =>
+		setRotation(rotation => [...rotation, action])
+
 	return (
 		<>
 			<h1>rotato</h1>
 			<JobSelect value={job} onChange={setJob} />
 			<hr />
-			{job && <ActionList job={job} />}
+			<Rotation actions={rotation} />
+			<hr />
+			{job && <ActionList job={job} onClickAction={appendAction} />}
 		</>
 	)
 }
@@ -44,11 +51,26 @@ function JobSelect({value, onChange}: JobSelectProps) {
 	)
 }
 
-interface ActionListProps {
-	job: Job
+interface RotationProps {
+	actions: Action[]
 }
 
-function ActionList({job}: ActionListProps) {
+function Rotation({actions}: RotationProps) {
+	return (
+		<ul>
+			{actions.map((action, index) => (
+				<li key={index}>{action.name}</li>
+			))}
+		</ul>
+	)
+}
+
+interface ActionListProps {
+	job: Job
+	onClickAction?: (action: Action) => void
+}
+
+function ActionList({job, onClickAction}: ActionListProps) {
 	const actions = useJobActions(job)
 
 	return (
@@ -57,7 +79,9 @@ function ActionList({job}: ActionListProps) {
 			{actions != null && (
 				<ul>
 					{actions.map(action => (
-						<li key={action.id}>{action.name}</li>
+						<li key={action.id} onClick={() => onClickAction?.(action)}>
+							{action.name}
+						</li>
 					))}
 				</ul>
 			)}
