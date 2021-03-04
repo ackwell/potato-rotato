@@ -1,4 +1,5 @@
-import {ChangeEvent, useCallback, useEffect, useState} from 'react'
+import {ChangeEvent, useCallback, useState} from 'react'
+import {Job, useJobActions, useJobs} from './xivapi'
 
 export function App() {
 	const [job, setJob] = useState<Job>()
@@ -10,45 +11,6 @@ export function App() {
 			{job && <ActionList job={job} />}
 		</>
 	)
-}
-
-interface XivApiListing<T> {
-	Results: T[]
-}
-
-interface XivApiJob {
-	ID: number
-	Name: string
-	ClassJobParentTargetID: number
-	ItemSoulCrystalTargetID: number
-}
-
-interface Job {
-	id: number
-	name: string
-	parentId: number
-}
-
-function useJobs() {
-	const [jobs, setJobs] = useState<Job[]>()
-	useEffect(() => {
-		fetch(
-			'https://xivapi.com/classjob?columns=ID,Name,ClassJobParentTargetID,ItemSoulCrystalTargetID',
-		)
-			.then(resp => resp.json())
-			.then((json: XivApiListing<XivApiJob>) => {
-				setJobs(
-					json.Results.filter(job => job.ItemSoulCrystalTargetID > 0).map(
-						job => ({
-							id: job.ID,
-							name: job.Name,
-							parentId: job.ClassJobParentTargetID,
-						}),
-					),
-				)
-			})
-	}, [])
-	return jobs
 }
 
 interface JobSelectProps {
@@ -80,34 +42,6 @@ function JobSelect({value, onChange}: JobSelectProps) {
 			))}
 		</select>
 	)
-}
-
-interface XivApiAction {
-	ID: number
-	Name: string
-}
-
-interface Action {
-	id: number
-	name: string
-}
-
-function useJobActions(job: Job) {
-	const [actions, setActions] = useState<Action[]>()
-	useEffect(() => {
-		const jobIds = [job.id, job.parentId].join(';')
-		fetch(
-			`https://xivapi.com/search?indexes=action&filters=ClassJob.ID|=${jobIds}&columns=ID,Name`,
-		)
-			.then(resp => resp.json())
-			.then((json: XivApiListing<XivApiAction>) =>
-				setActions(
-					json.Results.map(action => ({id: action.ID, name: action.Name})),
-				),
-			)
-		return () => setActions(undefined)
-	}, [job])
-	return actions
 }
 
 interface ActionListProps {
