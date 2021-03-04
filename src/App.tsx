@@ -15,7 +15,7 @@ export function App() {
 			<hr />
 			<Rotation actions={rotation} />
 			<hr />
-			{job && <ActionList job={job} onClickAction={appendAction} />}
+			{job && <Palette job={job} onClickAction={appendAction} />}
 		</>
 	)
 }
@@ -65,12 +65,12 @@ function Rotation({actions}: RotationProps) {
 	)
 }
 
-interface ActionListProps {
+interface PaletteProps {
 	job: Job
 	onClickAction?: (action: Action) => void
 }
 
-function ActionList({job, onClickAction}: ActionListProps) {
+function Palette({job, onClickAction}: PaletteProps) {
 	const actions = useJobActions(job)
 
 	return (
