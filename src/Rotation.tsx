@@ -1,3 +1,4 @@
+import {Tooltip} from '@xivanalysis/tooltips'
 import {atom, useAtom} from 'jotai'
 import {useUpdateAtom} from 'jotai/utils'
 import {useCallback} from 'react'
@@ -100,7 +101,8 @@ function RotationItemView({index, item}: RotationItemViewProps) {
 					{...provided.draggableProps}
 					{...provided.dragHandleProps}
 				>
-					{item.type} {item.action}
+					{/* todo switch between types */}
+					<Tooltip sheet="Action" id={item.action} />
 				</div>
 			)}
 		</Draggable>

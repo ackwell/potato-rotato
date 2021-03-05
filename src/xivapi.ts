@@ -40,12 +40,10 @@ export function useJobs() {
 
 interface XivApiAction {
 	ID: number
-	Name: string
 }
 
 export interface Action {
 	id: number
-	name: string
 }
 
 export function useJobActions(job: Job) {
@@ -55,13 +53,11 @@ export function useJobActions(job: Job) {
 			{column: 'ClassJob.ID', op: '|=', values: [job.id, job.parentId]},
 		])
 		fetch(
-			`https://xivapi.com/search?indexes=action&filters=${filter}&columns=ID,Name`,
+			`https://xivapi.com/search?indexes=action&filters=${filter}&columns=ID`,
 		)
 			.then(resp => resp.json())
 			.then((json: XivApiListing<XivApiAction>) =>
-				setActions(
-					json.Results.map(action => ({id: action.ID, name: action.Name})),
-				),
+				setActions(json.Results.map(action => ({id: action.ID}))),
 			)
 		return () => setActions(undefined)
 	}, [job])

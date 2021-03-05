@@ -1,3 +1,4 @@
+import {Tooltip} from '@xivanalysis/tooltips'
 import {Draggable, Droppable} from 'react-beautiful-dnd'
 import {Action, Job, useJobActions} from './xivapi'
 
@@ -52,9 +53,9 @@ function PaletteAction({index, action}: PaletteActionProps) {
 								: 'translate(0px, 0px)',
 						}}
 					>
-						{action.name}
+						<Tooltip sheet="Action" id={action.id} />
 					</div>
-					{snapshot.isDragging && <div>{action.name}</div>}
+					{snapshot.isDragging && <Tooltip sheet="Action" id={action.id} />}
 				</>
 			)}
 		</Draggable>
