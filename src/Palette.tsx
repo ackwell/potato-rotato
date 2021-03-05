@@ -1,6 +1,8 @@
 import {Draggable, Droppable} from 'react-beautiful-dnd'
 import {Action, Job, useJobActions} from './xivapi'
 
+export const PALETTE_DROPPABLE = 'palette'
+
 // todo: readd click to append?
 export interface PaletteProps {
 	job: Job
@@ -13,7 +15,7 @@ export function Palette({job}: PaletteProps) {
 		<>
 			{actions == null && <>loading</>}
 			{actions != null && (
-				<Droppable droppableId="palette" isDropDisabled={true}>
+				<Droppable droppableId={PALETTE_DROPPABLE} isDropDisabled={true}>
 					{provided => (
 						<div ref={provided.innerRef} {...provided.droppableProps}>
 							{actions.map((action, index) => (

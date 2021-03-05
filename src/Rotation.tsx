@@ -7,8 +7,9 @@ import {
 	Droppable,
 	DropResult,
 } from 'react-beautiful-dnd'
+import {PALETTE_DROPPABLE} from './Palette'
 
-export type RotationItem = {type: 'action'; id: number}
+export type RotationItem = {key: string} & {type: 'action'; action: number}
 
 const rotationAtom = atom<RotationItem[]>([])
 
@@ -16,25 +17,45 @@ interface RotationContextProps {
 	children?: React.ReactNode
 }
 
-function insert<T extends any>(input: T[], index: number, toInsert: T) {
-	const output = input.slice()
-	output.splice(index, 0, toInsert)
-	return output
-}
+let nextItemKey = 0
+const getNextItemKey = () => `rotationItem:${nextItemKey++}`
 
 export function RotationContext({children}: RotationContextProps) {
 	const setRotation = useUpdateAtom(rotationAtom)
 
 	const onDragEnd = useCallback(
-		({draggableId, destination}: DropResult) => {
-			// todo check source, will need diff handling depending on source
+		({draggableId, source, destination}: DropResult) => {
 			// todo we'll want more than purely actions, figure out ids in a non-meme way
-			setRotation(rotation =>
-				insert(rotation, destination?.index ?? 0, {
-					type: 'action',
-					id: parseInt(draggableId, 10),
-				}),
-			)
+			// this entire handling is pretty meme right now
+
+			// palette -> rotation drops an action
+			if (
+				source.droppableId === PALETTE_DROPPABLE &&
+				destination?.droppableId === ROTATION_DROPPABLE
+			) {
+				setRotation(rotation => {
+					const output = rotation.slice()
+					output.splice(destination.index, 0, {
+						key: getNextItemKey(),
+						type: 'action',
+						action: parseInt(draggableId, 10),
+					})
+					return output
+				})
+			}
+
+			// rotation -> rotation reorders the rotation by their unique key
+			if (
+				source.droppableId === ROTATION_DROPPABLE &&
+				destination?.droppableId === ROTATION_DROPPABLE
+			) {
+				setRotation(rotation => {
+					const output = rotation.slice()
+					const [item] = output.splice(source.index, 1)
+					output.splice(destination.index, 0, item)
+					return output
+				})
+			}
 		},
 		[setRotation],
 	)
@@ -42,15 +63,17 @@ export function RotationContext({children}: RotationContextProps) {
 	return <DragDropContext onDragEnd={onDragEnd}>{children}</DragDropContext>
 }
 
+export const ROTATION_DROPPABLE = 'rotation'
+
 export function Rotation() {
 	const [items] = useAtom(rotationAtom)
 
 	return (
-		<Droppable droppableId="rotation">
+		<Droppable droppableId={ROTATION_DROPPABLE}>
 			{provided => (
 				<div ref={provided.innerRef} {...provided.droppableProps}>
 					{items.map((item, index) => (
-						<RotationItemView key={index} item={item} index={index} />
+						<RotationItemView key={item.key} item={item} index={index} />
 					))}
 					{provided.placeholder}
 				</div>
@@ -68,10 +91,8 @@ function RotationItemView({index, item}: RotationItemViewProps) {
 	return (
 		<Draggable
 			// todo this but properly
-			draggableId={`bullshit-tofix-${index}`}
+			draggableId={item.key}
 			index={index}
-			// todo remove below, its just to fix immediate term breaks
-			isDragDisabled={true}
 		>
 			{provided => (
 				<div
@@ -79,7 +100,7 @@ function RotationItemView({index, item}: RotationItemViewProps) {
 					{...provided.draggableProps}
 					{...provided.dragHandleProps}
 				>
-					{item.type} {item.id}
+					{item.type} {item.action}
 				</div>
 			)}
 		</Draggable>
