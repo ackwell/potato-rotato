@@ -1,12 +1,50 @@
-import {Draggable, Droppable} from 'react-beautiful-dnd'
+import {atom, useAtom} from 'jotai'
+import {useUpdateAtom} from 'jotai/utils'
+import {useCallback} from 'react'
+import {
+	DragDropContext,
+	Draggable,
+	Droppable,
+	DropResult,
+} from 'react-beautiful-dnd'
 
 export type RotationItem = {type: 'action'; id: number}
 
-export interface RotationProps {
-	items: RotationItem[]
+const rotationAtom = atom<RotationItem[]>([])
+
+interface RotationContextProps {
+	children?: React.ReactNode
 }
 
-export function Rotation({items}: RotationProps) {
+function insert<T extends any>(input: T[], index: number, toInsert: T) {
+	const output = input.slice()
+	output.splice(index, 0, toInsert)
+	return output
+}
+
+export function RotationContext({children}: RotationContextProps) {
+	const setRotation = useUpdateAtom(rotationAtom)
+
+	const onDragEnd = useCallback(
+		({draggableId, destination}: DropResult) => {
+			// todo check source, will need diff handling depending on source
+			// todo we'll want more than purely actions, figure out ids in a non-meme way
+			setRotation(rotation =>
+				insert(rotation, destination?.index ?? 0, {
+					type: 'action',
+					id: parseInt(draggableId, 10),
+				}),
+			)
+		},
+		[setRotation],
+	)
+
+	return <DragDropContext onDragEnd={onDragEnd}>{children}</DragDropContext>
+}
+
+export function Rotation() {
+	const [items] = useAtom(rotationAtom)
+
 	return (
 		<Droppable droppableId="rotation">
 			{provided => (

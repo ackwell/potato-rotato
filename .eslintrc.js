@@ -6,7 +6,7 @@ module.exports = {
 		'plugin:import/typescript',
 	],
 	rules: {
-		'import/no-internal-modules': 'error',
+		'import/no-internal-modules': ['error', {allow: ['jotai/**']}],
 		'import/order': ['error', {alphabetize: {order: 'asc'}}],
 	},
 }
