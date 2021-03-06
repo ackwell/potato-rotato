@@ -56,6 +56,7 @@ export function App() {
 	const [items, setItems] = useState<Items>(() =>
 		buildInitialItems({getDraggableKey}),
 	)
+	const [itemsBackup, setItemsBackup] = useState<Items>()
 	const [draggingItem, setDraggingItem] = useState<DraggableItem>()
 	// flat map structure of all current items
 	// todo this is currently only used in ondragstart, if that's the only place we use it can probably just inline it there as a deep find
@@ -108,7 +109,11 @@ export function App() {
 	)
 
 	function onDragStart({active}: DragStartEvent) {
+		// Set the active item for use in the drag overlay
 		setDraggingItem(itemMap.get(active.id))
+
+		// Back up the current state of the items in case the drag is cancelled and we moved an item between containers
+		setItemsBackup(items)
 	}
 
 	function onDragOver({active, over}: DragOverEvent) {
@@ -117,8 +122,7 @@ export function App() {
 			return
 		}
 
-		// Find the active and over buckets. if they're the same, we don't
-		// need to remount anything, and can noop
+		// Find the active and over buckets. if they're the same, we don't need to remount anything, and can noop
 		const activeBucket = findBucket(active.id)
 		const overBucket = findBucket(over.id)
 		if (activeBucket === overBucket) {
@@ -152,7 +156,7 @@ export function App() {
 	}
 
 	function onDragEnd({active, over}: DragEndEvent) {
-		setDraggingItem(undefined)
+		cleanUpDrag()
 
 		// Not over anything, don't need to act
 		if (over == null) {
@@ -185,7 +189,17 @@ export function App() {
 	}
 
 	function onDragCancel() {
-		// TODO
+		// Restore the item state to our backup if we have any
+		if (itemsBackup) {
+			setItems(itemsBackup)
+		}
+
+		cleanUpDrag()
+	}
+
+	function cleanUpDrag() {
+		setDraggingItem(undefined)
+		setItemsBackup(undefined)
 	}
 
 	return (
