@@ -7,6 +7,7 @@ import {
 	KeyboardSensor,
 	PointerSensor,
 	useDraggable,
+	useDroppable,
 	useSensor,
 	useSensors,
 } from '@dnd-kit/core'
@@ -38,11 +39,7 @@ const buildInitialItems = ({
 }: {
 	getDraggableKey: () => string
 }): Items => ({
-	[Bucket.ROTATION]: [
-		// temp items for testing
-		{key: getDraggableKey(), type: 'action', action: 1},
-		{key: getDraggableKey(), type: 'action', action: 2},
-	],
+	[Bucket.ROTATION]: [],
 	[Bucket.PALETTE]: [],
 	[Bucket.BIN]: [],
 })
@@ -71,7 +68,10 @@ export function App() {
 	)
 
 	function findBucket(key: string): Bucket {
-		// todo might add buckets as keys as well, check here
+		// Key might be a bucket unto itself, check first
+		if (key in items) {
+			return key as Bucket
+		}
 
 		const bucket = Object.keys(items).find(bucket =>
 			items[bucket as Bucket].some(item => item.key === key),
@@ -230,15 +230,18 @@ interface RotationProps {
 }
 
 function Rotation({items}: RotationProps) {
-	// todo will need a droppable area for blank state
+	const {setNodeRef} = useDroppable({id: Bucket.ROTATION})
+
 	return (
 		<>
 			rotation
-			<SortableContext items={items.map(item => item.key)}>
-				{items.map(item => (
-					<SortableItem key={item.key} item={item} />
-				))}
-			</SortableContext>
+			<div ref={setNodeRef} style={{minHeight: 60}}>
+				<SortableContext items={items.map(item => item.key)}>
+					{items.map(item => (
+						<SortableItem key={item.key} item={item} />
+					))}
+				</SortableContext>
+			</div>
 		</>
 	)
 }
