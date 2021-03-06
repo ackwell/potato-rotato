@@ -6,40 +6,28 @@ import {
 	DragStartEvent,
 	KeyboardSensor,
 	PointerSensor,
-	useDraggable,
 	useDroppable,
 	useSensor,
 	useSensors,
 } from '@dnd-kit/core'
-import {
-	arrayMove,
-	SortableContext,
-	sortableKeyboardCoordinates,
-	useSortable,
-} from '@dnd-kit/sortable'
-import {CSS} from '@dnd-kit/utilities'
-import {column, Data, useGameData} from '@xivanalysis/tooltips'
+import {arrayMove, sortableKeyboardCoordinates} from '@dnd-kit/sortable'
 import {useMemo, useRef, useState} from 'react'
+import {DraggableItem, ItemView} from './Item'
 import {JobSelect} from './JobSelect'
+import {Palette} from './Palette'
+import {Rotation} from './Rotation'
 import {getJobActions, Job} from './xivapi'
 
-enum Bucket {
+// TODO: This is effectively consumed by a circular import. resolve.
+export enum Bucket {
 	ROTATION = 'ROTATION',
 	PALETTE = 'PALETTE',
 	BIN = 'BIN',
 }
 
-type ActionItem = {type: 'action'; action: number}
-type Item = ActionItem
-type DraggableItem = Item & {key: string}
-
 // TODO: should we store items by keys separate to the keys in the draggable data, or keep them merged? consider.
 type Items = Record<Bucket, DraggableItem[]>
-const buildInitialItems = ({
-	getDraggableKey,
-}: {
-	getDraggableKey: () => string
-}): Items => ({
+const buildInitialItems = (): Items => ({
 	[Bucket.ROTATION]: [],
 	[Bucket.PALETTE]: [],
 	[Bucket.BIN]: [],
@@ -51,9 +39,7 @@ export function App() {
 
 	// todo do i need job?
 	const [job, setJob] = useState<Job>()
-	const [items, setItems] = useState<Items>(() =>
-		buildInitialItems({getDraggableKey}),
-	)
+	const [items, setItems] = useState<Items>(() => buildInitialItems())
 	const [itemsBackup, setItemsBackup] = useState<Items>()
 	const [draggingItem, setDraggingItem] = useState<DraggableItem>()
 	// flat map structure of all current items
@@ -103,7 +89,6 @@ export function App() {
 		)
 	}
 
-	// dnd stuff
 	const sensors = useSensors(
 		useSensor(PointerSensor),
 		useSensor(KeyboardSensor, {coordinateGetter: sortableKeyboardCoordinates}),
@@ -131,7 +116,6 @@ export function App() {
 		}
 
 		// Need to move the item between containers
-		// TODO: Handle bin
 		setItems(items => {
 			// todo: if pulling from palette, need to replace active with copy w new id
 			const activeItems = items[activeBucket]
@@ -229,124 +213,11 @@ export function App() {
 	)
 }
 
-interface RotationProps {
-	items: DraggableItem[]
-}
-
-function Rotation({items}: RotationProps) {
-	const {setNodeRef} = useDroppable({id: Bucket.ROTATION})
-
-	return (
-		<>
-			rotation
-			<div ref={setNodeRef} style={{minHeight: 60}}>
-				<SortableContext items={items.map(item => item.key)}>
-					{items.map(item => (
-						<SortableItem key={item.key} item={item} />
-					))}
-				</SortableContext>
-			</div>
-		</>
-	)
-}
-
-interface SortableItemProps {
-	item: DraggableItem
-}
-
-function SortableItem({item}: SortableItemProps) {
-	const {
-		setNodeRef,
-		attributes,
-		listeners,
-		transform,
-		transition,
-	} = useSortable({
-		id: item.key,
-	})
-
-	const style = {
-		transform: CSS.Transform.toString(transform),
-		transition,
-		display: 'inline-block',
-	}
-
-	// todo might be able to avoid the wrapper. consider.
-	return (
-		<div ref={setNodeRef} style={style} {...attributes} {...listeners}>
-			<ItemView item={item} />
-		</div>
-	)
-}
-
-interface PaletteProps {
-	items: DraggableItem[]
-}
-
-function Palette({items}: PaletteProps) {
-	return (
-		<>
-			palette
-			{items.length === 0 && <>loading...</>}
-			{items.map(item => (
-				<DraggableItemView key={item.key} item={item} />
-			))}
-		</>
-	)
-}
-
 function Bin() {
 	const {setNodeRef, isOver} = useDroppable({id: Bucket.BIN})
 	return (
 		<div ref={setNodeRef} style={{background: isOver ? 'red' : undefined}}>
 			bin
-		</div>
-	)
-}
-
-interface DraggableItemViewProps {
-	item: DraggableItem
-}
-
-function DraggableItemView({item}: DraggableItemViewProps) {
-	const {setNodeRef, attributes, listeners} = useDraggable({
-		id: item.key,
-	})
-
-	// todo might be able to avoid the wrapper. consider.
-	return (
-		<div
-			ref={setNodeRef}
-			{...attributes}
-			{...listeners}
-			style={{display: 'inline-block'}}
-		>
-			<ItemView item={item} />
-		</div>
-	)
-}
-
-interface ItemViewProps {
-	item: Item
-}
-
-class ActionItemData extends Data {
-	@column('Name') name!: string
-	@column('Icon', {type: 'url'}) icon!: string
-}
-
-function ItemView({item}: ItemViewProps) {
-	// todo switch case this
-
-	const action = useGameData({
-		sheet: 'Action',
-		id: item.action,
-		columns: ActionItemData,
-	})
-
-	return (
-		<div style={{width: 60, height: 60}}>
-			{action && <img src={action.icon} alt={action.name} />}
 		</div>
 	)
 }
