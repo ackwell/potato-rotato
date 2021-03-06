@@ -15,7 +15,7 @@ import {
 	useSortable,
 } from '@dnd-kit/sortable'
 import {CSS} from '@dnd-kit/utilities'
-import {useMemo, useState} from 'react'
+import {useMemo, useRef, useState} from 'react'
 import {JobSelect} from './JobSelect'
 import {getJobActions, Job} from './xivapi'
 
@@ -31,20 +31,29 @@ type DraggableItem = Item & {key: string}
 
 // TODO: should we store items by keys separate to the keys in the draggable data, or keep them merged? consider.
 type Items = Record<Bucket, DraggableItem[]>
-const buildInitialItems = (): Items => ({
+const buildInitialItems = ({
+	getDraggableKey,
+}: {
+	getDraggableKey: () => string
+}): Items => ({
 	[Bucket.ROTATION]: [
 		// temp items for testing
-		{key: 'me', type: 'action', action: 1},
-		{key: 'em', type: 'action', action: 2},
+		{key: getDraggableKey(), type: 'action', action: 1},
+		{key: getDraggableKey(), type: 'action', action: 2},
 	],
 	[Bucket.PALETTE]: [],
 	[Bucket.BIN]: [],
 })
 
 export function App() {
+	const nextDraggableId = useRef(0)
+	const getDraggableKey = () => `${nextDraggableId.current++}`
+
 	// todo do i need job?
 	const [job, setJob] = useState<Job>()
-	const [items, setItems] = useState<Items>(buildInitialItems)
+	const [items, setItems] = useState<Items>(() =>
+		buildInitialItems({getDraggableKey}),
+	)
 	const [draggingItem, setDraggingItem] = useState<DraggableItem>()
 	// flat map structure of all current items
 	// todo this is currently only used in ondragstart, if that's the only place we use it can probably just inline it there as a deep find
@@ -84,7 +93,7 @@ export function App() {
 				[Bucket.PALETTE]: actions.map(action => ({
 					type: 'action',
 					action: action.id,
-					key: `${action.id}`,
+					key: getDraggableKey(),
 				})),
 			})),
 		)
@@ -103,6 +112,7 @@ export function App() {
 	function onDragOver({active, over}: DragOverEvent) {
 		// Not over anything, don't need to act
 		if (over == null) {
+			console.log(findBucket(active.id))
 			return
 		}
 
@@ -117,18 +127,24 @@ export function App() {
 		// Need to move the item between containers
 		// TODO: Handle bin
 		setItems(items => {
-			// todo: if pulling from palette, need to recycle &c
-			const newActive = items[activeBucket].slice()
-			const activeIndex = newActive.findIndex(item => item.key === active.id)
-			const [activeItem] = newActive.splice(activeIndex, 1)
+			// todo: if pulling from palette, need to replace active with copy w new id
+			const activeItems = items[activeBucket]
+			const activeIndex = activeItems.findIndex(item => item.key === active.id)
+
+			// If pulling from the palette, we want to replace the one we're removing with a fresh copy
+			const replaceItems =
+				activeBucket === Bucket.PALETTE
+					? [{...activeItems[activeIndex], key: getDraggableKey()}]
+					: []
+
 			return {
 				...items,
-				[activeBucket]: newActive,
-				[overBucket]: [
-					// TODO: splice
-					...items[overBucket],
-					activeItem,
+				[activeBucket]: [
+					...activeItems.slice(0, activeIndex),
+					...replaceItems,
+					...activeItems.slice(activeIndex + 1),
 				],
+				[overBucket]: [...items[overBucket], activeItems[activeIndex]],
 			}
 		})
 	}
