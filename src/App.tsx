@@ -1,5 +1,6 @@
 import {
 	DndContext,
+	DragEndEvent,
 	DragOverEvent,
 	DragOverlay,
 	DragStartEvent,
@@ -10,6 +11,7 @@ import {
 	useSensors,
 } from '@dnd-kit/core'
 import {
+	arrayMove,
 	SortableContext,
 	sortableKeyboardCoordinates,
 	useSortable,
@@ -112,7 +114,6 @@ export function App() {
 	function onDragOver({active, over}: DragOverEvent) {
 		// Not over anything, don't need to act
 		if (over == null) {
-			console.log(findBucket(active.id))
 			return
 		}
 
@@ -144,13 +145,43 @@ export function App() {
 					...replaceItems,
 					...activeItems.slice(activeIndex + 1),
 				],
+				// inserting active at end of over, we'll reorder the bucket in drag end
 				[overBucket]: [...items[overBucket], activeItems[activeIndex]],
 			}
 		})
 	}
 
-	function onDragEnd() {
+	function onDragEnd({active, over}: DragEndEvent) {
 		setDraggingItem(undefined)
+
+		// Not over anything, don't need to act
+		if (over == null) {
+			return
+		}
+
+		const activeBucket = findBucket(active.id)
+		const overBucket = findBucket(over.id)
+
+		// onDragOver should handle all bucket shuffling for us. Ensure it did.
+		if (activeBucket !== overBucket) {
+			throw new Error(
+				`Invariant: Bucket desync. Drag end recieved move "${activeBucket}"->"${overBucket}"`,
+			)
+		}
+
+		// Reorder the bucket to finalise the drag
+		const activeIndex = items[activeBucket].findIndex(
+			item => item.key === active.id,
+		)
+		const overIndex = items[overBucket].findIndex(item => item.key === over.id)
+		if (activeIndex === overIndex) {
+			return
+		}
+
+		setItems(items => ({
+			...items,
+			[overBucket]: arrayMove(items[overBucket], activeIndex, overIndex),
+		}))
 	}
 
 	function onDragCancel() {
