@@ -18,6 +18,7 @@ import {
 	useSortable,
 } from '@dnd-kit/sortable'
 import {CSS} from '@dnd-kit/utilities'
+import {column, Data, useGameData} from '@xivanalysis/tooltips'
 import {useMemo, useRef, useState} from 'react'
 import {JobSelect} from './JobSelect'
 import {getJobActions, Job} from './xivapi'
@@ -329,11 +330,23 @@ interface ItemViewProps {
 	item: Item
 }
 
+class ActionItemData extends Data {
+	@column('Name') name!: string
+	@column('Icon', {type: 'url'}) icon!: string
+}
+
 function ItemView({item}: ItemViewProps) {
 	// todo switch case this
+
+	const action = useGameData({
+		sheet: 'Action',
+		id: item.action,
+		columns: ActionItemData,
+	})
+
 	return (
 		<div style={{width: 60, height: 60}}>
-			{item.type} {item.action}
+			{action && <img src={action.icon} alt={action.name} />}
 		</div>
 	)
 }
