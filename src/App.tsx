@@ -185,6 +185,7 @@ export function App() {
 		setItems(items => ({
 			...items,
 			[overBucket]: arrayMove(items[overBucket], activeIndex, overIndex),
+			[Bucket.BIN]: [],
 		}))
 	}
 
@@ -217,6 +218,8 @@ export function App() {
 				<JobSelect value={job} onChange={onSelectJob} />
 				<hr />
 				{job && <Palette items={items[Bucket.PALETTE]} />}
+				<hr />
+				<Bin />
 				<DragOverlay>
 					{draggingItem != null && <ItemView item={draggingItem} />}
 				</DragOverlay>
@@ -291,6 +294,15 @@ function Palette({items}: PaletteProps) {
 	)
 }
 
+function Bin() {
+	const {setNodeRef, isOver} = useDroppable({id: Bucket.BIN})
+	return (
+		<div ref={setNodeRef} style={{background: isOver ? 'red' : undefined}}>
+			bin
+		</div>
+	)
+}
+
 interface DraggableItemViewProps {
 	item: DraggableItem
 }
@@ -299,6 +311,7 @@ function DraggableItemView({item}: DraggableItemViewProps) {
 	const {setNodeRef, attributes, listeners} = useDraggable({
 		id: item.key,
 	})
+
 	// todo might be able to avoid the wrapper. consider.
 	return (
 		<div
