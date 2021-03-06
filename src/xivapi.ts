@@ -46,27 +46,23 @@ export interface Action {
 	id: number
 }
 
-export function useJobActions(job: Job) {
-	const [actions, setActions] = useState<Action[]>()
-	useEffect(() => {
-		const filter = buildFilter([
-			{column: 'ClassJob.ID', op: '|=', values: [job.id, job.parentId]},
-		])
-		fetch(
-			`https://xivapi.com/search?indexes=action&filters=${filter}&columns=ID`,
+export async function getJobActions(job: Job): Promise<Action[]> {
+	const filter = buildFilter([
+		{column: 'ClassJob.ID', op: '|=', values: [job.id, job.parentId]},
+	])
+	return fetch(
+		`https://xivapi.com/search?indexes=action&filters=${filter}&columns=ID`,
+	)
+		.then(resp => resp.json())
+		.then((json: XivApiListing<XivApiAction>) =>
+			json.Results.map(action => ({id: action.ID})),
 		)
-			.then(resp => resp.json())
-			.then((json: XivApiListing<XivApiAction>) =>
-				setActions(json.Results.map(action => ({id: action.ID}))),
-			)
-		return () => setActions(undefined)
-	}, [job])
-	return actions
 }
 
 const fetchXivapi = <T = any>(request: string): Promise<T> =>
 	fetch(`https://xivapi.com/${request}`).then(resp => resp.json())
 
+// this is probably overkill. remove?
 type Filter = {column: string} & {op: '|='; values: unknown[]}
 
 const buildFilter = (filters: Filter[]): string =>
