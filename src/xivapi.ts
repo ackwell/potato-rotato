@@ -44,23 +44,41 @@ export function useJobs() {
 	return jobs
 }
 
+interface XivApiAction {
+	ID: number
+	ClassJobLevel: number
+}
+
+export interface Action {
+	id: number
+	level: number
+}
+
+const buildAction = (input: XivApiAction): Action => ({
+	id: input.ID,
+	level: input.ClassJobLevel,
+})
+
 // The ActionIndirection sheet provides overrides for Action.ClassJob, seemingly used to
 // adjust what's displayed in the Actions & Traits menu. It's a tiny sheet, eagerly fetch
 // and process, we'll use it when retrieving actions for a job
 interface XivApiActionIndirection {
-	NameTargetID: number
+	Name: {
+		ID: number
+		ClassJobLevel: number
+	}
 	ClassJobTargetID: number | '-1'
 }
 
 const actionIndirectionData = fetchXivapi(
-	'ActionIndirection?columns=NameTargetID,ClassJobTargetID',
+	'ActionIndirection?columns=Name.ID,Name.ClassJobLevel,ClassJobTargetID',
 ).then((json: XivApiListing<XivApiActionIndirection>) => {
 	const hide = new Set<number>()
-	const extras = new Map<number, number[]>()
+	const extras = new Map<number, Action[]>()
 
-	for (const {ClassJobTargetID: job, NameTargetID: action} of json.Results) {
+	for (const {ClassJobTargetID: job, Name: action} of json.Results) {
 		if (job === '-1') {
-			hide.add(action)
+			hide.add(action.ID)
 			continue
 		}
 
@@ -69,19 +87,11 @@ const actionIndirectionData = fetchXivapi(
 			jobExtras = []
 			extras.set(job, jobExtras)
 		}
-		jobExtras.push(action)
+		jobExtras.push(buildAction(action))
 	}
 
 	return {hide, extras}
 })
-
-interface XivApiAction {
-	ID: number
-}
-
-export interface Action {
-	id: number
-}
 
 export async function getJobActions(job: Job): Promise<Action[]> {
 	const filters = [
@@ -92,15 +102,14 @@ export async function getJobActions(job: Job): Promise<Action[]> {
 	const [{hide, extras}, json] = await Promise.all([
 		actionIndirectionData,
 		fetchXivapi<XivApiListing<XivApiAction>>(
-			`search?indexes=action&filters=${filters}&columns=ID`,
+			`search?indexes=action&filters=${filters}&columns=ID,ClassJobLevel`,
 		),
 	])
 
+	// Should the sort be here or in component space? Tempted to say the latter tbqh
 	return [
-		...json.Results.map(action => action.ID),
+		...json.Results.filter(action => !hide.has(action.ID)).map(buildAction),
 		...(extras.get(job.id) ?? []),
 		...(job.parentId !== job.id ? extras.get(job.parentId) ?? [] : []),
-	]
-		.filter(id => !hide.has(id))
-		.map(id => ({id}))
+	].sort((a, b) => a.level - b.level)
 }
