@@ -12,10 +12,10 @@ import {
 } from '@dnd-kit/core'
 import {arrayMove, sortableKeyboardCoordinates} from '@dnd-kit/sortable'
 import {useMemo, useRef, useState} from 'react'
-import {DraggableItem, ItemView} from './Item'
-import {JobSelect} from './JobSelect'
-import {Palette} from './Palette'
-import {Rotation} from './Rotation'
+import {DraggableItem, ItemView} from './item'
+import {JobSelect} from './jobSelect'
+import {Palette} from './palette'
+import {Rotation} from './rotation'
 import {getJobActions, Job} from './xivapi'
 
 // TODO: This is effectively consumed by a circular import. resolve.
@@ -39,7 +39,7 @@ export function App() {
 
 	// todo do i need job?
 	const [job, setJob] = useState<Job>()
-	const [items, setItems] = useState<Items>(() => buildInitialItems())
+	const [items, setItems] = useState(buildInitialItems)
 	const [itemsBackup, setItemsBackup] = useState<Items>()
 	const [draggingItem, setDraggingItem] = useState<DraggableItem>()
 	// flat map structure of all current items

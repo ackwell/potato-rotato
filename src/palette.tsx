@@ -1,5 +1,5 @@
 import {useDraggable} from '@dnd-kit/core'
-import {DraggableItem, ItemView} from './Item'
+import {DraggableItem, ItemView} from './item'
 
 export interface PaletteProps {
 	items: DraggableItem[]
