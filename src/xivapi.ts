@@ -1,5 +1,4 @@
 import {useEffect, useState} from 'react'
-import {UnreachableError} from './util'
 
 interface XivApiListing<T> {
 	Results: T[]
@@ -47,32 +46,14 @@ export interface Action {
 }
 
 export async function getJobActions(job: Job): Promise<Action[]> {
-	const filter = buildFilter([
-		{column: 'ClassJob.ID', op: '|=', values: [job.id, job.parentId]},
-	])
-	return fetch(
-		`https://xivapi.com/search?indexes=action&filters=${filter}&columns=ID`,
+	// TODO: Handle PvP
+	// TODO: Handle crafters?
+	return fetchXivapi(
+		`search?indexes=action&filters=ClassJob.ID|=${job.id};${job.parentId}&columns=ID`,
+	).then((json: XivApiListing<XivApiAction>) =>
+		json.Results.map(action => ({id: action.ID})),
 	)
-		.then(resp => resp.json())
-		.then((json: XivApiListing<XivApiAction>) =>
-			json.Results.map(action => ({id: action.ID})),
-		)
 }
 
 const fetchXivapi = <T = any>(request: string): Promise<T> =>
 	fetch(`https://xivapi.com/${request}`).then(resp => resp.json())
-
-// this is probably overkill. remove?
-type Filter = {column: string} & {op: '|='; values: unknown[]}
-
-const buildFilter = (filters: Filter[]): string =>
-	filters.map(translateFilterValue).join(',')
-
-function translateFilterValue(filter: Filter): string {
-	switch (filter.op) {
-		case '|=':
-			return `${filter.column}${filter.op}${filter.values.join(';')}`
-		default:
-			throw new UnreachableError(filter.op)
-	}
-}

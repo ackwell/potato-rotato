@@ -25,8 +25,8 @@ export function Palette() {
 
 	return (
 		<>
-			<hr />
 			<JobSelect value={job} onChange={onSelectJob} />
+			<hr />
 			palette
 			{job != null && palette.length === 0 && <>loading...</>}
 			{palette.map(item => (
