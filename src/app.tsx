@@ -11,8 +11,8 @@ import {
 	useSensors,
 } from '@dnd-kit/core'
 import {arrayMove, sortableKeyboardCoordinates} from '@dnd-kit/sortable'
-import {useAtom, WritableAtom} from 'jotai'
-import {useEffect, useMemo, useState} from 'react'
+import {useAtom} from 'jotai'
+import {useMemo, useState} from 'react'
 import {DraggableItem, ItemView} from './item'
 import {Palette} from './palette'
 import {Rotation} from './rotation'
@@ -23,32 +23,7 @@ import {
 	itemsAtom,
 	serialisedRotationAtom,
 } from './state'
-
-interface AtomUrlPersisterProps {
-	atom: WritableAtom<string, string>
-}
-
-function AtomUrlPersister({atom}: AtomUrlPersisterProps) {
-	const [serialised, hydrate] = useAtom(atom)
-
-	// URL -> State
-	// TODO: React to hash changing? use diff location param?
-	// probs should use query i guess
-	useEffect(() => {
-		const hash = window.location.hash.replace(/^#/, '')
-		if (hash === '') {
-			return
-		}
-		hydrate(hash)
-	}, [hydrate])
-
-	// State -> URL
-	useEffect(() => {
-		window.location.hash = serialised
-	}, [serialised])
-
-	return null
-}
+import {AtomUrlPersister} from './utils'
 
 export function App() {
 	const [items, setItems] = useAtom(itemsAtom)
