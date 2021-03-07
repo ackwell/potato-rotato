@@ -1,6 +1,10 @@
 import {column, Data, useGameData} from '@xivanalysis/tooltips'
 
-export type ActionItem = {type: 'action'; action: number}
+export enum ItemType {
+	ACTION,
+}
+
+export type ActionItem = {type: ItemType.ACTION; action: number}
 export type Item = ActionItem
 export type DraggableItem = Item & {key: string}
 

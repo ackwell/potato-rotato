@@ -11,8 +11,9 @@ import {
 	useSensors,
 } from '@dnd-kit/core'
 import {arrayMove, sortableKeyboardCoordinates} from '@dnd-kit/sortable'
-import {useMemo, useRef, useState} from 'react'
-import {DraggableItem, ItemView} from './item'
+import {atom, useAtom, WritableAtom} from 'jotai'
+import {useEffect, useMemo, useState} from 'react'
+import {DraggableItem, Item, ItemType, ItemView} from './item'
 import {JobSelect} from './jobSelect'
 import {Palette} from './palette'
 import {Rotation} from './rotation'
@@ -33,13 +34,67 @@ const buildInitialItems = (): Items => ({
 	[Bucket.BIN]: [],
 })
 
-export function App() {
-	const nextDraggableId = useRef(0)
-	const getDraggableKey = () => `${nextDraggableId.current++}`
+// thanks i hate it
+let nextDraggableId = 0
+const getDraggableKey = () => `${nextDraggableId++}`
 
+const getDraggableItem = (item: Item): DraggableItem => ({
+	...item,
+	key: getDraggableKey(),
+})
+
+const itemsAtom = atom(buildInitialItems())
+
+const serialisedRotationAtom = atom(
+	get => {
+		const rotation = get(itemsAtom)[Bucket.ROTATION]
+		// TODO: Find better encoding to squidge this up a bit
+		// TODO: Will need to switch case the serialisation of the data segment
+		return rotation.map(item => `${item.type}|${item.action}`).join(',')
+	},
+	(get, set, update: string) => {
+		const things = update.split(',')
+		const newRotation = things.map(thing => {
+			const [type, action] = thing.split('|').map(fuck => parseInt(fuck, 10))
+			return getDraggableItem({type, action})
+		})
+		set(itemsAtom, items => ({
+			...items,
+			[Bucket.ROTATION]: newRotation,
+		}))
+	},
+)
+
+interface AtomUrlPersisterProps {
+	atom: WritableAtom<string, string>
+}
+
+function AtomUrlPersister({atom}: AtomUrlPersisterProps) {
+	const [serialised, hydrate] = useAtom(atom)
+
+	// URL -> State
+	// TODO: React to hash changing? use diff location param?
+	// probs should use query i guess
+	useEffect(() => {
+		const hash = window.location.hash.replace(/^#/, '')
+		if (hash === '') {
+			return
+		}
+		hydrate(hash)
+	}, [hydrate])
+
+	// State -> URL
+	useEffect(() => {
+		window.location.hash = serialised
+	}, [serialised])
+
+	return null
+}
+
+export function App() {
 	// todo do i need job?
 	const [job, setJob] = useState<Job>()
-	const [items, setItems] = useState(buildInitialItems)
+	const [items, setItems] = useAtom(itemsAtom)
 	const [itemsBackup, setItemsBackup] = useState<Items>()
 	const [draggingItem, setDraggingItem] = useState<DraggableItem>()
 	// flat map structure of all current items
@@ -80,11 +135,12 @@ export function App() {
 		getJobActions(job).then(actions =>
 			setItems(items => ({
 				...items,
-				[Bucket.PALETTE]: actions.map(action => ({
-					type: 'action',
-					action: action.id,
-					key: getDraggableKey(),
-				})),
+				[Bucket.PALETTE]: actions.map(action =>
+					getDraggableItem({
+						type: ItemType.ACTION,
+						action: action.id,
+					}),
+				),
 			})),
 		)
 	}
@@ -124,7 +180,7 @@ export function App() {
 			// If pulling from the palette, we want to replace the one we're removing with a fresh copy
 			const replaceItems =
 				activeBucket === Bucket.PALETTE
-					? [{...activeItems[activeIndex], key: getDraggableKey()}]
+					? [getDraggableItem(activeItems[activeIndex])]
 					: []
 
 			return {
@@ -209,6 +265,8 @@ export function App() {
 					{draggingItem != null && <ItemView item={draggingItem} />}
 				</DragOverlay>
 			</DndContext>
+
+			<AtomUrlPersister atom={serialisedRotationAtom} />
 		</>
 	)
 }
