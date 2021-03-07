@@ -39,9 +39,9 @@ export const serialisedRotationAtom = atom(
 		return rotation.map(item => `${item.type}|${item.action}`).join(',')
 	},
 	(get, set, update: string) => {
-		const things = update.split(',')
-		const newRotation = things.map(thing => {
-			const [type, action] = thing.split('|').map(fuck => parseInt(fuck, 10))
+		const items = update.split(',')
+		const newRotation = items.map(item => {
+			const [type, action] = item.split('|').map(value => parseInt(value, 10))
 			return getDraggableItem({type, action})
 		})
 		set(itemsAtom, items => ({

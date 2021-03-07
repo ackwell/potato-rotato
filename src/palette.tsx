@@ -24,6 +24,11 @@ export function Palette() {
 		)
 	}
 
+	// TODO: Switches
+	// - pvp
+	// - bozja
+	// - eureka
+
 	return (
 		<Container>
 			<Heading>Palette</Heading>
