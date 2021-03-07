@@ -12,19 +12,21 @@ interface XivApiJob {
 	Name: string
 	ClassJobParentTargetID: number
 	ItemSoulCrystalTargetID: number
+	Abbreviation_en: string
 }
 
 export interface Job {
 	id: number
 	name: string
 	parentId: number
+	classJobCategoryKey: string
 }
 
 export function useJobs() {
 	const [jobs, setJobs] = useState<Job[]>()
 	useEffect(() => {
 		fetchXivapi<XivApiListing<XivApiJob>>(
-			'ClassJob?columns=ID,Name,ClassJobParentTargetID,ItemSoulCrystalTargetID',
+			'ClassJob?columns=ID,Name,ClassJobParentTargetID,ItemSoulCrystalTargetID,Abbreviation_en',
 		).then(json => {
 			setJobs(
 				json.Results.filter(job => job.ItemSoulCrystalTargetID > 0).map(
@@ -32,6 +34,8 @@ export function useJobs() {
 						id: job.ID,
 						name: job.Name,
 						parentId: job.ClassJobParentTargetID,
+						// This is a relatively tenuous link. Blame miu if it breaks.
+						classJobCategoryKey: job.Abbreviation_en,
 					}),
 				),
 			)
@@ -80,7 +84,10 @@ export interface Action {
 }
 
 export async function getJobActions(job: Job): Promise<Action[]> {
-	const filters = [`ClassJob.ID|=${job.id};${job.parentId}`].join(',')
+	const filters = [
+		`ClassJob.ID|=${job.id};${job.parentId}`,
+		`ClassJobCategory.${job.classJobCategoryKey}=1`,
+	].join(',')
 
 	const [{hide, extras}, json] = await Promise.all([
 		actionIndirectionData,
