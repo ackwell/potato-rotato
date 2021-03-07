@@ -4,6 +4,7 @@ import {useState} from 'react'
 import {DraggableItem, ItemType, ItemView} from './item'
 import {JobSelect} from './jobSelect'
 import {paletteAtom} from './state'
+import {Container, Heading} from './ui'
 import {getJobActions, Job} from './xivapi'
 
 export function Palette() {
@@ -24,15 +25,15 @@ export function Palette() {
 	}
 
 	return (
-		<>
+		<Container>
+			<Heading>Palette</Heading>
 			<JobSelect value={job} onChange={onSelectJob} />
 			<hr />
-			palette
 			{job != null && palette.length === 0 && <>loading...</>}
 			{palette.map(item => (
 				<DraggableItemView key={item.key} item={item} />
 			))}
-		</>
+		</Container>
 	)
 }
 

@@ -184,7 +184,6 @@ export function App() {
 
 	return (
 		<>
-			<h1>rotato</h1>
 			<DndContext
 				sensors={sensors}
 				onDragStart={onDragStart}
