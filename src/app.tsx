@@ -12,7 +12,7 @@ import {
 } from '@dnd-kit/core'
 import {arrayMove, sortableKeyboardCoordinates} from '@dnd-kit/sortable'
 import {useAtom} from 'jotai'
-import {useMemo, useState} from 'react'
+import {useState} from 'react'
 import {DraggableItem, ItemView} from './item'
 import {Palette} from './palette'
 import {Rotation} from './rotation'
@@ -29,17 +29,6 @@ export function App() {
 	const [items, setItems] = useAtom(itemsAtom)
 	const [itemsBackup, setItemsBackup] = useState<Items>()
 	const [draggingItem, setDraggingItem] = useState<DraggableItem>()
-	// flat map structure of all current items
-	// todo this is currently only used in ondragstart, if that's the only place we use it can probably just inline it there as a deep find
-	const itemMap = useMemo(
-		() =>
-			new Map(
-				Object.values(items).flatMap(items =>
-					items.map(item => [item.key, item]),
-				),
-			),
-		[items],
-	)
 
 	function findBucket(key: string): Bucket {
 		// Key might be a bucket unto itself, check first
@@ -65,7 +54,14 @@ export function App() {
 
 	function onDragStart({active}: DragStartEvent) {
 		// Set the active item for use in the drag overlay
-		setDraggingItem(itemMap.get(active.id))
+		let draggingItem: DraggableItem | undefined
+		for (const bucketItems of Object.values(items)) {
+			draggingItem = bucketItems.find(item => item.key === active.id)
+			if (draggingItem != null) {
+				break
+			}
+		}
+		setDraggingItem(draggingItem)
 
 		// Back up the current state of the items in case the drag is cancelled and we moved an item between containers
 		setItemsBackup(items)
