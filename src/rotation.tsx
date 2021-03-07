@@ -1,8 +1,8 @@
 import {useDroppable} from '@dnd-kit/core'
 import {SortableContext, useSortable} from '@dnd-kit/sortable'
 import {CSS} from '@dnd-kit/utilities'
-import {Bucket} from './app'
 import {DraggableItem, ItemView} from './item'
+import {Bucket} from './state'
 
 export interface RotationProps {
 	items: DraggableItem[]

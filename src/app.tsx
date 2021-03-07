@@ -11,59 +11,20 @@ import {
 	useSensors,
 } from '@dnd-kit/core'
 import {arrayMove, sortableKeyboardCoordinates} from '@dnd-kit/sortable'
-import {atom, useAtom, WritableAtom} from 'jotai'
+import {useAtom, WritableAtom} from 'jotai'
 import {useEffect, useMemo, useState} from 'react'
-import {DraggableItem, Item, ItemType, ItemView} from './item'
+import {DraggableItem, ItemType, ItemView} from './item'
 import {JobSelect} from './jobSelect'
 import {Palette} from './palette'
 import {Rotation} from './rotation'
+import {
+	Bucket,
+	getDraggableItem,
+	Items,
+	itemsAtom,
+	serialisedRotationAtom,
+} from './state'
 import {getJobActions, Job} from './xivapi'
-
-// TODO: This is effectively consumed by a circular import. resolve.
-export enum Bucket {
-	ROTATION = 'ROTATION',
-	PALETTE = 'PALETTE',
-	BIN = 'BIN',
-}
-
-// TODO: should we store items by keys separate to the keys in the draggable data, or keep them merged? consider.
-type Items = Record<Bucket, DraggableItem[]>
-const buildInitialItems = (): Items => ({
-	[Bucket.ROTATION]: [],
-	[Bucket.PALETTE]: [],
-	[Bucket.BIN]: [],
-})
-
-// thanks i hate it
-let nextDraggableId = 0
-const getDraggableKey = () => `${nextDraggableId++}`
-
-const getDraggableItem = (item: Item): DraggableItem => ({
-	...item,
-	key: getDraggableKey(),
-})
-
-const itemsAtom = atom(buildInitialItems())
-
-const serialisedRotationAtom = atom(
-	get => {
-		const rotation = get(itemsAtom)[Bucket.ROTATION]
-		// TODO: Find better encoding to squidge this up a bit
-		// TODO: Will need to switch case the serialisation of the data segment
-		return rotation.map(item => `${item.type}|${item.action}`).join(',')
-	},
-	(get, set, update: string) => {
-		const things = update.split(',')
-		const newRotation = things.map(thing => {
-			const [type, action] = thing.split('|').map(fuck => parseInt(fuck, 10))
-			return getDraggableItem({type, action})
-		})
-		set(itemsAtom, items => ({
-			...items,
-			[Bucket.ROTATION]: newRotation,
-		}))
-	},
-)
 
 interface AtomUrlPersisterProps {
 	atom: WritableAtom<string, string>
