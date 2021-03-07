@@ -13,8 +13,7 @@ import {
 import {arrayMove, sortableKeyboardCoordinates} from '@dnd-kit/sortable'
 import {useAtom, WritableAtom} from 'jotai'
 import {useEffect, useMemo, useState} from 'react'
-import {DraggableItem, ItemType, ItemView} from './item'
-import {JobSelect} from './jobSelect'
+import {DraggableItem, ItemView} from './item'
 import {Palette} from './palette'
 import {Rotation} from './rotation'
 import {
@@ -24,7 +23,6 @@ import {
 	itemsAtom,
 	serialisedRotationAtom,
 } from './state'
-import {getJobActions, Job} from './xivapi'
 
 interface AtomUrlPersisterProps {
 	atom: WritableAtom<string, string>
@@ -53,8 +51,6 @@ function AtomUrlPersister({atom}: AtomUrlPersisterProps) {
 }
 
 export function App() {
-	// todo do i need job?
-	const [job, setJob] = useState<Job>()
 	const [items, setItems] = useAtom(itemsAtom)
 	const [itemsBackup, setItemsBackup] = useState<Items>()
 	const [draggingItem, setDraggingItem] = useState<DraggableItem>()
@@ -85,25 +81,6 @@ export function App() {
 		}
 
 		return bucket as Bucket
-	}
-
-	function onSelectJob(job: Job) {
-		// Clear the palette and set the currently active job
-		setItems(items => ({...items, [Bucket.PALETTE]: []}))
-		setJob(job)
-
-		// Load in actions and populate the palette
-		getJobActions(job).then(actions =>
-			setItems(items => ({
-				...items,
-				[Bucket.PALETTE]: actions.map(action =>
-					getDraggableItem({
-						type: ItemType.ACTION,
-						action: action.id,
-					}),
-				),
-			})),
-		)
 	}
 
 	const sensors = useSensors(
@@ -217,9 +194,7 @@ export function App() {
 			>
 				<Rotation items={items[Bucket.ROTATION]} />
 				<hr />
-				<JobSelect value={job} onChange={onSelectJob} />
-				<hr />
-				{job && <Palette items={items[Bucket.PALETTE]} />}
+				<Palette />
 				<hr />
 				<Bin />
 				<DragOverlay>
