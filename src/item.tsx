@@ -1,12 +1,5 @@
 import {column, Data, useGameData} from '@xivanalysis/tooltips'
-
-export enum ItemType {
-	ACTION,
-}
-
-export type ActionItem = {type: ItemType.ACTION; action: number}
-export type Item = ActionItem
-export type DraggableItem = Item & {key: string}
+import {Item} from './state'
 
 class ActionItemData extends Data {
 	@column('Name') name!: string
@@ -27,7 +20,7 @@ export function ItemView({item}: ItemViewProps) {
 	})
 
 	return (
-		<div style={{width: 60, height: 60}}>
+		<div style={{width: 40, height: 40}}>
 			{action && <img src={action.icon} alt={action.name} />}
 		</div>
 	)

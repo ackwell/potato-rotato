@@ -1,9 +1,9 @@
 import {useDraggable} from '@dnd-kit/core'
 import {useAtom} from 'jotai'
 import {useState} from 'react'
-import {DraggableItem, ItemType, ItemView} from './item'
+import {ItemView} from './item'
 import {JobSelect} from './jobSelect'
-import {paletteAtom} from './state'
+import {DraggableItem, ItemType, paletteAtom} from './state'
 import {Container, Heading} from './ui'
 import {getJobActions, Job} from './xivapi'
 

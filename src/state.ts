@@ -1,5 +1,12 @@
 import {atom} from 'jotai'
-import {DraggableItem, Item} from './item'
+
+export enum ItemType {
+	ACTION,
+}
+
+export type ActionItem = {type: ItemType.ACTION; action: number}
+export type Item = ActionItem
+export type DraggableItem = Item & {key: string}
 
 export enum Bucket {
 	ROTATION = 'ROTATION',

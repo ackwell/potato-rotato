@@ -13,11 +13,12 @@ import {
 import {arrayMove, sortableKeyboardCoordinates} from '@dnd-kit/sortable'
 import {useAtom} from 'jotai'
 import {useState} from 'react'
-import {DraggableItem, ItemView} from './item'
+import {ItemView} from './item'
 import {Palette} from './palette'
 import {Rotation} from './rotation'
 import {
 	Bucket,
+	DraggableItem,
 	getDraggableItem,
 	Items,
 	itemsAtom,
