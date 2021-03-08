@@ -51,21 +51,18 @@ export function useJobs() {
 
 interface XivApiAction {
 	ID: number
-	ClassJobLevel: number
-	IsPvP: 0 | 1
+	ClassJobLevel?: number
 }
 
 export interface Action {
 	id: number
 	level: number
-	pvp: boolean
 	pvpOrder?: number
 }
 
 const buildAction = (input: XivApiAction): Action => ({
 	id: input.ID,
-	level: input.ClassJobLevel,
-	pvp: input.IsPvP > 0,
+	level: input.ClassJobLevel ?? 0,
 })
 
 // The ActionIndirection sheet provides overrides for Action.ClassJob, seemingly used to
@@ -75,13 +72,12 @@ interface XivApiActionIndirection {
 	Name: {
 		ID: number
 		ClassJobLevel: number
-		IsPvP: 0 | 1
 	}
 	ClassJobTargetID: number | '-1'
 }
 
 const actionIndirectionData = fetchXivapi(
-	'ActionIndirection?limit=500&columns=Name.ID,Name.ClassJobLevel,Name.IsPvP,ClassJobTargetID',
+	'ActionIndirection?limit=500&columns=Name.ID,Name.ClassJobLevel,ClassJobTargetID',
 ).then((json: XivApiListing<XivApiActionIndirection>) => {
 	const hide = new Set<number>()
 	const extras = new Map<number, Action[]>()
@@ -106,19 +102,25 @@ const actionIndirectionData = fetchXivapi(
 // PvPActionSort provides the sorting used in the pvp actions window, useful as all
 // pvp actions have no class job level to sort off. In addition, entries not found
 // in the table can be assumed to be hidden.
-// TODO: Should do this lazily?
 interface XivApiPvPActionSort {
 	ID: string
 	// Currently called Name, but I _just_ PR'd a rename, so let's support both lmao
 	Name?: number
 	ActionType?: number
-	ActionTargetID: number
+	Action: {
+		ID: number
+		// TODO: This isn't entirely accurate but whatever
+		ClassJobCategory: Record<string, 0 | 1>
+	}
 }
 
 const pvpActionSortData = fetchXivapi(
-	'PvPActionSort?limit=1000&columns=ID,Name,ActionType,ActionTargetID',
+	'PvPActionSort?limit=1000&columns=ID,Name,ActionType,Action.ID,Action.ClassJobCategory',
 ).then((json: XivApiListing<XivApiPvPActionSort>) => {
-	const orders = new Map<number, number>()
+	// Sheet stores values separately for every job, so shared actions will be duped. Ignore dupes.
+	// TODO: This is nuking sortOrder for some actions that are shared. Once Miu merges PvPActionSortRow we'll be able to use it to clean up a bit.
+	const seen = new Set<number>()
+	const jobGroups = new Map<string, Action[]>()
 
 	for (const result of json.Results) {
 		// Non-1 ActionType values link to other tables, ignore
@@ -127,48 +129,51 @@ const pvpActionSortData = fetchXivapi(
 			continue
 		}
 
+		if (seen.has(result.Action.ID)) {
+			continue
+		}
+		seen.add(result.Action.ID)
+
 		// Table uses subrows. One row per job, one subrow per action, in order of display
+		const action = buildAction(result.Action)
 		const [, sortOrder] = result.ID.split('.')
-		orders.set(result.ActionTargetID, parseInt(sortOrder, 10))
+		action.pvpOrder = parseInt(sortOrder, 10)
+
+		// Some PVP Actions are shared between classes, grabbem' all
+		const jobs = Object.keys(result.Action.ClassJobCategory).filter(
+			key => result.Action.ClassJobCategory[key] === 1,
+		)
+		for (const job of jobs) {
+			let jobActions = jobGroups.get(job)
+			if (jobActions == null) {
+				jobActions = []
+				jobGroups.set(job, [])
+			}
+			jobActions.push(action)
+		}
 	}
 
-	return {orders}
+	return {jobGroups}
 })
 
 export async function getJobActions(job: Job): Promise<Action[]> {
 	const filters = [
 		`ClassJob.ID|=${job.id};${job.parentId}`,
 		`ClassJobCategory.${job.classJobCategoryKey}=1`,
+		'IsPvP=0',
 	].join(',')
 
 	const [indirection, pvpSort, regularActions] = await Promise.all([
 		actionIndirectionData,
 		pvpActionSortData,
 		fetchXivapi<XivApiListing<XivApiAction>>(
-			`search?indexes=action&filters=${filters}&columns=ID,ClassJobLevel,IsPvP`,
+			`search?indexes=action&filters=${filters}&columns=ID,ClassJobLevel`,
 		),
 	])
 
-	const jobActions = regularActions.Results.filter(action => {
-		// Regular actions hidden by indirection
-		if (indirection.hide.has(action.ID)) {
-			return false
-		}
-
-		// PvP actions must be in pvp sort
-		if (action.IsPvP > 0 && !pvpSort.orders.has(action.ID)) {
-			return false
-		}
-
-		return true
-	}).map(action => {
-		const output = buildAction(action)
-		const pvpOrder = pvpSort.orders.get(action.ID)
-		if (pvpOrder) {
-			output.pvpOrder = pvpOrder
-		}
-		return output
-	})
+	const jobActions = regularActions.Results.filter(
+		action => !indirection.hide.has(action.ID),
+	).map(buildAction)
 
 	return [
 		...jobActions,
@@ -176,5 +181,6 @@ export async function getJobActions(job: Job): Promise<Action[]> {
 		...(job.parentId !== job.id
 			? indirection.extras.get(job.parentId) ?? []
 			: []),
+		...(pvpSort.jobGroups.get(job.classJobCategoryKey) ?? []),
 	]
 }

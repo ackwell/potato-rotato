@@ -21,7 +21,7 @@ function categoriseActions(actions: Action[]): ActionCategory[] {
 	const pvp: ActionCategory = {name: 'PvP', actions: []}
 
 	for (const action of actions) {
-		if (action.pvp) {
+		if (action.pvpOrder != null) {
 			pvp.actions.push(action)
 			continue
 		}
