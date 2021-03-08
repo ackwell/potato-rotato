@@ -14,15 +14,20 @@ interface ActionCategory {
 
 function categoriseActions(actions: Action[]): ActionCategory[] {
 	// TODO: categories
-	// - bozja
 	// - eureka
 
 	const regular: ActionCategory = {name: 'Actions', actions: []}
-	const pvp: ActionCategory = {name: 'PvP', actions: []}
+	const pvp: ActionCategory = {name: 'PvP Actions', actions: []}
+	const bozja: ActionCategory = {name: 'Lost Actions', actions: []}
 
 	for (const action of actions) {
 		if (action.pvpOrder != null) {
 			pvp.actions.push(action)
+			continue
+		}
+
+		if (action.bozjaOrder != null) {
+			bozja.actions.push(action)
 			continue
 		}
 
@@ -32,8 +37,9 @@ function categoriseActions(actions: Action[]): ActionCategory[] {
 
 	regular.actions.sort((a, b) => a.level - b.level)
 	pvp.actions.sort((a, b) => (a.pvpOrder ?? 0) - (b.pvpOrder ?? 0))
+	bozja.actions.sort((a, b) => (a.bozjaOrder ?? 0) - (b.bozjaOrder ?? 0))
 
-	return [regular, pvp]
+	return [regular, pvp, bozja]
 }
 
 export function Palette() {

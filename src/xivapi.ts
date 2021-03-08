@@ -58,6 +58,7 @@ export interface Action {
 	id: number
 	level: number
 	pvpOrder?: number
+	bozjaOrder?: number
 }
 
 const buildAction = (input: XivApiAction): Action => ({
@@ -156,6 +157,44 @@ const pvpActionSortData = fetchXivapi(
 	return {jobGroups}
 })
 
+// MYCTemporaryItem contains all the data for "Lost" items and actions available in Save The Queen areas
+interface XivApiMYCTemporaryItem {
+	Order: number
+	CategoryTargetID: number
+	Action: {
+		ID: number
+		// TODO: This isn't entirely accurate but whatever
+		ClassJobCategory: Record<string, 0 | 1>
+	}
+}
+
+const bozjaActionData = fetchXivapi(
+	`MYCTemporaryItem?limit=500&columns=Order,CategoryTargetID,Action.ID,Action.ClassJobCategory`,
+).then((json: XivApiListing<XivApiMYCTemporaryItem>) => {
+	const jobGroups = new Map<string, Action[]>()
+
+	// This is copypasta from pvp, might be able to dedupe a bit i guess
+	for (const result of json.Results) {
+		// Table uses subrows. One row per job, one subrow per action, in order of display
+		const action = buildAction(result.Action)
+		action.bozjaOrder = result.Order + result.CategoryTargetID * 1000
+
+		const jobs = Object.keys(result.Action.ClassJobCategory).filter(
+			key => result.Action.ClassJobCategory[key] === 1,
+		)
+		for (const job of jobs) {
+			let jobActions = jobGroups.get(job)
+			if (jobActions == null) {
+				jobActions = []
+				jobGroups.set(job, [])
+			}
+			jobActions.push(action)
+		}
+	}
+
+	return {jobGroups}
+})
+
 export async function getJobActions(job: Job): Promise<Action[]> {
 	const filters = [
 		`ClassJob.ID|=${job.id};${job.parentId}`,
@@ -163,9 +202,15 @@ export async function getJobActions(job: Job): Promise<Action[]> {
 		'IsPvP=0',
 	].join(',')
 
-	const [indirection, pvpSort, regularActions] = await Promise.all([
+	const [
+		indirection,
+		pvpSort,
+		bozjaActions,
+		regularActions,
+	] = await Promise.all([
 		actionIndirectionData,
 		pvpActionSortData,
+		bozjaActionData,
 		fetchXivapi<XivApiListing<XivApiAction>>(
 			`search?indexes=action&filters=${filters}&columns=ID,ClassJobLevel`,
 		),
@@ -182,5 +227,6 @@ export async function getJobActions(job: Job): Promise<Action[]> {
 			? indirection.extras.get(job.parentId) ?? []
 			: []),
 		...(pvpSort.jobGroups.get(job.classJobCategoryKey) ?? []),
+		...(bozjaActions.jobGroups.get(job.classJobCategoryKey) ?? []),
 	]
 }
