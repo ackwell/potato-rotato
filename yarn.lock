@@ -1151,18 +1151,12 @@
     exec-sh "^0.3.2"
     minimist "^1.2.0"
 
-"@compiled/css-in-js@^0.4.7":
-  version "0.4.7"
-  resolved "https://registry.yarnpkg.com/@compiled/css-in-js/-/css-in-js-0.4.7.tgz#2e105acaaae8314ac4e2a2c67e08c04d72681d07"
-  integrity sha512-qH6MATPthJ/54dX6t0pyvh277k0nQMkyBhGiHFYjd//56T0jSk+P7Cfp4czb1xJ/UzHzi7Ce8COSCqo73Cu43g==
+"@compiled/react@^0.6.0":
+  version "0.6.7"
+  resolved "https://registry.yarnpkg.com/@compiled/react/-/react-0.6.7.tgz#5f6bd0e8fbc6c382570ace8de029f211b3c3246b"
+  integrity sha512-wzIHhXut0zNW4lcLxnMO1Rm6Zpj53dAqvj64v3OUWwQEQgyM5TW4EA++KBzSixHWPHUegbL4RvqJ0Fu5kl7Mjg==
   dependencies:
-    "@compiled/style" "0.4.7"
-    csstype "^2.0.0"
-
-"@compiled/style@0.4.7":
-  version "0.4.7"
-  resolved "https://registry.yarnpkg.com/@compiled/style/-/style-0.4.7.tgz#d674d6b04d81a8039c0bc3109b1831d7c8e39221"
-  integrity sha512-1H/LnvgKTT5fXVZ9cu//uS3AvspOsTaqHsW4pz7PhB+nb0DY59V/s5AtDbJYGW28Ni/9ddErFphD3xZhf+P1Fg==
+    csstype "^3.0.7"
 
 "@csstools/convert-colors@^1.4.0":
   version "1.4.0"
@@ -2172,13 +2166,13 @@
     "@webassemblyjs/wast-parser" "1.9.0"
     "@xtuc/long" "4.2.2"
 
-"@xivanalysis/tooltips@^0.1.3":
-  version "0.1.3"
-  resolved "https://registry.yarnpkg.com/@xivanalysis/tooltips/-/tooltips-0.1.3.tgz#73c50bc8a59b081b25582b7a04d7d60915672955"
-  integrity sha512-G5A7H4QRC9DBZDOvfDr3g+3ZrJD3BX4A0VsNHHTeHLFMwfflFsY05qrOt/+OYDP/ISV4eBq7YyY0OfnDFqVxmQ==
+"@xivanalysis/tooltips@^0.1.4":
+  version "0.1.4"
+  resolved "https://registry.yarnpkg.com/@xivanalysis/tooltips/-/tooltips-0.1.4.tgz#0ebc3f029f00e32befd8cbad868c168eb87892af"
+  integrity sha512-yNn4yysUCtQTlyqhlummVNJqnWpkzgkL8pu1DKmciDsYmr03BCjXt4KwPskAwHu8Zj/YhjAZrDTSU5WjUxyUIw==
   dependencies:
     "@babel/runtime" "^7.11.2"
-    "@compiled/css-in-js" "^0.4.7"
+    "@compiled/react" "^0.6.0"
 
 "@xtuc/ieee754@^1.2.0":
   version "1.2.0"
@@ -3896,12 +3890,7 @@ cssstyle@^2.2.0:
   dependencies:
     cssom "~0.3.6"
 
-csstype@^2.0.0:
-  version "2.6.16"
-  resolved "https://registry.yarnpkg.com/csstype/-/csstype-2.6.16.tgz#544d69f547013b85a40d15bff75db38f34fe9c39"
-  integrity sha512-61FBWoDHp/gRtsoDkq/B1nWrCUG/ok1E3tUrcNbZjsE9Cxd9yzUirjS3+nAATB8U4cTtaQmAHbNndoFz5L6C9Q==
-
-csstype@^3.0.2:
+csstype@^3.0.2, csstype@^3.0.7:
   version "3.0.7"
   resolved "https://registry.yarnpkg.com/csstype/-/csstype-3.0.7.tgz#2a5fb75e1015e84dd15692f71e89a1450290950b"
   integrity sha512-KxnUB0ZMlnUWCsx2Z8MUsr6qV6ja1w9ArPErJaJaF8a5SOWoHLIszeCTKGRGRgtLgYrs1E8CHkNSP1VZTTPc9g==
