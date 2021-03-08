@@ -81,7 +81,7 @@ interface XivApiActionIndirection {
 }
 
 const actionIndirectionData = fetchXivapi(
-	'ActionIndirection?columns=Name.ID,Name.ClassJobLevel,Name.IsPvP,ClassJobTargetID',
+	'ActionIndirection?limit=500&columns=Name.ID,Name.ClassJobLevel,Name.IsPvP,ClassJobTargetID',
 ).then((json: XivApiListing<XivApiActionIndirection>) => {
 	const hide = new Set<number>()
 	const extras = new Map<number, Action[]>()
@@ -136,13 +136,12 @@ const pvpActionSortData = fetchXivapi(
 })
 
 export async function getJobActions(job: Job): Promise<Action[]> {
-	// TODO: Can check GameContentLinks.PvPActionSort!! for actions with IsPvP i think
 	const filters = [
 		`ClassJob.ID|=${job.id};${job.parentId}`,
 		`ClassJobCategory.${job.classJobCategoryKey}=1`,
 	].join(',')
 
-	const [indirection, pvpSort, json] = await Promise.all([
+	const [indirection, pvpSort, regularActions] = await Promise.all([
 		actionIndirectionData,
 		pvpActionSortData,
 		fetchXivapi<XivApiListing<XivApiAction>>(
@@ -150,7 +149,7 @@ export async function getJobActions(job: Job): Promise<Action[]> {
 		),
 	])
 
-	const jobActions = json.Results.filter(action => {
+	const jobActions = regularActions.Results.filter(action => {
 		// Regular actions hidden by indirection
 		if (indirection.hide.has(action.ID)) {
 			return false

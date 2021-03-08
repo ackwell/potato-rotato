@@ -1,9 +1,9 @@
 import {useDraggable} from '@dnd-kit/core'
 import {useAtom} from 'jotai'
-import {useEffect, useState} from 'react'
+import {Fragment, useEffect, useState} from 'react'
 import {ItemView} from './item'
 import {JobSelect} from './jobSelect'
-import {DraggableItem, ItemType, paletteAtom} from './state'
+import {DraggableItem, getDraggableItem, ItemType, paletteAtom} from './state'
 import {Container, Heading} from './ui'
 import {Action, getJobActions, Job} from './xivapi'
 
@@ -53,7 +53,9 @@ export function Palette() {
 		getJobActions(job).then(actions => {
 			setCategories(categoriseActions(actions))
 			setPalette(
-				actions.map(action => ({type: ItemType.ACTION, action: action.id})),
+				actions.map(action =>
+					getDraggableItem({type: ItemType.ACTION, action: action.id}),
+				),
 			)
 		})
 	}, [job, setPalette])
@@ -64,17 +66,17 @@ export function Palette() {
 			<JobSelect value={job} onChange={setJob} />
 
 			<dl>
-				{categories.map(category => (
-					<>
+				{categories.map((category, index) => (
+					<Fragment key={index}>
 						<dt>{category.name}</dt>
 						<dd>
 							{category.actions.map(action => {
 								// TODO: I guess I could memo an id map for this
 								const item = palette.find(item => item.action === action.id)
-								return item && <DraggableItemView item={item} />
+								return item && <DraggableItemView key={item.key} item={item} />
 							})}
 						</dd>
-					</>
+					</Fragment>
 				))}
 			</dl>
 		</Container>
