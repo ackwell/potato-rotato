@@ -1,4 +1,7 @@
+import {bytesToBase64, base64ToBytes} from 'byte-base64'
 import {atom} from 'jotai'
+import msgpack from 'msgpack-lite'
+import pako from 'pako'
 
 export enum ItemType {
 	ACTION,
@@ -33,20 +36,27 @@ export const itemsAtom = atom<Items>({
 
 export const serialisedRotationAtom = atom(
 	get => {
+		// Run the gauntlet of SMOL
+		// TODO: is msgpack worth the 8kb of lib code on top of the mandatory 13kb of pako?
 		const rotation = get(itemsAtom)[Bucket.ROTATION]
-		// TODO: Find better encoding to squidge this up a bit
-		// TODO: Will need to switch case the serialisation of the data segment
-		return rotation.map(item => `${item.type}|${item.action}`).join(',')
+		const strippedKeys = rotation.map(item => ({
+			...item,
+			key: undefined,
+		}))
+		const bin = msgpack.encode(strippedKeys)
+		const deflate = pako.deflateRaw(bin)
+		const b64 = bytesToBase64(deflate)
+
+		return b64
 	},
 	(get, set, update: string) => {
-		const items = update.split(',')
-		const newRotation = items.map(item => {
-			const [type, action] = item.split('|').map(value => parseInt(value, 10))
-			return getDraggableItem({type, action})
-		})
+		// oh BOY now we need to REVERSE it. it BEEG now
+		const deflate = base64ToBytes(update)
+		const bin = pako.inflateRaw(deflate)
+		const newRotation = msgpack.decode(bin) as Item[]
 		set(itemsAtom, items => ({
 			...items,
-			[Bucket.ROTATION]: newRotation,
+			[Bucket.ROTATION]: newRotation.map(getDraggableItem),
 		}))
 	},
 )
