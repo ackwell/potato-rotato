@@ -101,6 +101,7 @@ export function App() {
 					...activeItems.slice(activeIndex + 1),
 				],
 				// inserting active at end of over, we'll reorder the bucket in drag end
+				// TODO: This naive insert causes a sub-par animation on initial mouseover, improve by splicing in.
 				[overBucket]: [...items[overBucket], activeItems[activeIndex]],
 			}
 		})

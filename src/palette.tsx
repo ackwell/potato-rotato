@@ -1,43 +1,82 @@
 import {useDraggable} from '@dnd-kit/core'
 import {useAtom} from 'jotai'
-import {useState} from 'react'
+import {useEffect, useState} from 'react'
 import {ItemView} from './item'
 import {JobSelect} from './jobSelect'
 import {DraggableItem, ItemType, paletteAtom} from './state'
 import {Container, Heading} from './ui'
-import {getJobActions, Job} from './xivapi'
+import {Action, getJobActions, Job} from './xivapi'
+
+interface ActionCategory {
+	name: string
+	actions: Action[]
+}
+
+function categoriseActions(actions: Action[]): ActionCategory[] {
+	// TODO: categories
+	// - bozja
+	// - eureka
+
+	const regular: ActionCategory = {name: 'Actions', actions: []}
+	const pvp: ActionCategory = {name: 'PvP', actions: []}
+
+	for (const action of actions) {
+		if (action.pvp) {
+			pvp.actions.push(action)
+			continue
+		}
+
+		// TODO: split regular into gcd/ogcd
+		regular.actions.push(action)
+	}
+
+	regular.actions.sort((a, b) => a.level - b.level)
+	pvp.actions.sort((a, b) => (a.pvpOrder ?? 0) - (b.pvpOrder ?? 0))
+
+	return [regular, pvp]
+}
 
 export function Palette() {
 	const [job, setJob] = useState<Job>()
+	const [categories, setCategories] = useState<ActionCategory[]>([])
 	const [palette, setPalette] = useAtom(paletteAtom)
 
-	function onSelectJob(job: Job) {
-		// Clear the palette and set the currently active job
-		setPalette([])
-		setJob(job)
+	// When job is updated, fetch & categorise actions for the new selection
+	useEffect(() => {
+		if (job == null) {
+			return
+		}
 
-		// Load in actions and populate the palette
-		getJobActions(job).then(actions =>
+		setCategories([])
+		setPalette([])
+
+		getJobActions(job).then(actions => {
+			setCategories(categoriseActions(actions))
 			setPalette(
 				actions.map(action => ({type: ItemType.ACTION, action: action.id})),
-			),
-		)
-	}
-
-	// TODO: Switches
-	// - pvp
-	// - bozja
-	// - eureka
+			)
+		})
+	}, [job, setPalette])
 
 	return (
 		<Container>
 			<Heading>Palette</Heading>
-			<JobSelect value={job} onChange={onSelectJob} />
-			<hr />
-			{job != null && palette.length === 0 && <>loading...</>}
-			{palette.map(item => (
-				<DraggableItemView key={item.key} item={item} />
-			))}
+			<JobSelect value={job} onChange={setJob} />
+
+			<dl>
+				{categories.map(category => (
+					<>
+						<dt>{category.name}</dt>
+						<dd>
+							{category.actions.map(action => {
+								// TODO: I guess I could memo an id map for this
+								const item = palette.find(item => item.action === action.id)
+								return item && <DraggableItemView item={item} />
+							})}
+						</dd>
+					</>
+				))}
+			</dl>
 		</Container>
 	)
 }

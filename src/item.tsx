@@ -1,6 +1,7 @@
 import {column, Data, useGameData} from '@xivanalysis/tooltips'
 import {Item} from './state'
 
+// can probably nuke tooltip lib usage? at least for labels.
 class ActionItemData extends Data {
 	@column('Name') name!: string
 	@column('Icon', {type: 'url'}) icon!: string
