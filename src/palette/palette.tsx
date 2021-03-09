@@ -1,46 +1,17 @@
 import {useDraggable} from '@dnd-kit/core'
 import {useAtom} from 'jotai'
 import {Fragment, useEffect, useState} from 'react'
-import {ItemView} from './item'
-import {JobSelect} from './jobSelect'
-import {DraggableItem, getDraggableItem, ItemType, paletteAtom} from './state'
-import {Container, Heading} from './ui'
-import {Action, getJobActions, Job} from './xivapi'
-
-interface ActionCategory {
-	name: string
-	actions: Action[]
-}
-
-function categoriseActions(actions: Action[]): ActionCategory[] {
-	// TODO: categories
-	// - eureka
-
-	const regular: ActionCategory = {name: 'Actions', actions: []}
-	const pvp: ActionCategory = {name: 'PvP Actions', actions: []}
-	const bozja: ActionCategory = {name: 'Lost Actions', actions: []}
-
-	for (const action of actions) {
-		if (action.pvpOrder != null) {
-			pvp.actions.push(action)
-			continue
-		}
-
-		if (action.bozjaOrder != null) {
-			bozja.actions.push(action)
-			continue
-		}
-
-		// TODO: split regular into gcd/ogcd
-		regular.actions.push(action)
-	}
-
-	regular.actions.sort((a, b) => a.level - b.level)
-	pvp.actions.sort((a, b) => (a.pvpOrder ?? 0) - (b.pvpOrder ?? 0))
-	bozja.actions.sort((a, b) => (a.bozjaOrder ?? 0) - (b.bozjaOrder ?? 0))
-
-	return [regular, pvp, bozja]
-}
+import {ItemView} from '../item'
+import {JobSelect} from '../jobSelect'
+import {DraggableItem, getDraggableItem, ItemType, paletteAtom} from '../state'
+import {Container, Heading} from '../ui'
+import {Job} from '../xivapi'
+import {
+	ActionCategory,
+	fetchBozjaCategories,
+	fetchPvpCategories,
+	fetchRegularCategories,
+} from './category'
 
 export function Palette() {
 	const [job, setJob] = useState<Job>()
@@ -56,11 +27,18 @@ export function Palette() {
 		setCategories([])
 		setPalette([])
 
-		getJobActions(job).then(actions => {
-			setCategories(categoriseActions(actions))
+		Promise.all([
+			fetchRegularCategories(job),
+			fetchPvpCategories(job),
+			fetchBozjaCategories(job),
+		]).then(categoryGroups => {
+			const categories = categoryGroups.flat()
+			setCategories(categories)
 			setPalette(
-				actions.map(action =>
-					getDraggableItem({type: ItemType.ACTION, action: action.id}),
+				categories.flatMap(category =>
+					category.actions.map(action =>
+						getDraggableItem({type: ItemType.ACTION, action: action.id}),
+					),
 				),
 			)
 		})
