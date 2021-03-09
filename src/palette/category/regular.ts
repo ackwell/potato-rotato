@@ -1,4 +1,5 @@
-import {fetchXivapi, Job, XivApiListing} from '../../xivapi'
+import {fetchXivapi, XivApiListing} from '../../xivapi'
+import {Job} from '../jobSelect'
 import {ActionCategory} from './base'
 
 // The ActionIndirection sheet provides overrides for Action.ClassJob, seemingly used to

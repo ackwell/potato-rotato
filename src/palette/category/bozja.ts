@@ -1,5 +1,6 @@
 import {exists} from '../../utils'
-import {fetchXivapi, Job, XivApiListing} from '../../xivapi'
+import {fetchXivapi, XivApiListing} from '../../xivapi'
+import {Job} from '../jobSelect'
 import {Action, ActionCategory} from './base'
 
 export {}

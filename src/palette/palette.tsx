@@ -1,10 +1,8 @@
 import {useDraggable} from '@dnd-kit/core'
 import {useAtom} from 'jotai'
 import {Fragment, useEffect, useState} from 'react'
-import {JobSelect} from '../jobSelect'
 import {DraggableItem, getDraggableItem, ItemType, paletteAtom} from '../state'
 import {Container, Heading} from '../ui'
-import {Job} from '../xivapi'
 import {
 	ActionCategory,
 	fetchBozjaCategories,
@@ -12,6 +10,7 @@ import {
 	fetchRegularCategories,
 } from './category'
 import {PaletteItemView} from './item'
+import {Job, JobSelect} from './jobSelect'
 
 export function Palette() {
 	const [job, setJob] = useState<Job>()
