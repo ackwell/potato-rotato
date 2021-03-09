@@ -27,6 +27,7 @@ export function Palette() {
 		setCategories([])
 		setPalette([])
 
+		// TODO: Opt-in for all but regular, and make their requests lazy.
 		Promise.all([
 			fetchRegularCategories(job),
 			fetchPvpCategories(job),
