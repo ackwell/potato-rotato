@@ -10,7 +10,8 @@ const fontMetrics = {
 	unitsPerEm: 1000,
 }
 
-const headingStyles = capsize({fontMetrics, capHeight: 14, lineGap: 8})
+// TODO: Pull in value as rem scalar from global theme thing
+const headingStyles = capsize({fontMetrics, capHeight: 16, lineGap: 8})
 
 export interface HeadingProps {
 	children?: ReactNode
