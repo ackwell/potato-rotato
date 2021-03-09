@@ -1,6 +1,6 @@
-import {useActionData} from './data'
-import {Item} from './state'
-import {ActionIcon} from './ui'
+import {useActionData} from '../data'
+import {Item} from '../state'
+import {ActionIcon} from '../ui'
 
 export interface ItemViewProps {
 	item: Item

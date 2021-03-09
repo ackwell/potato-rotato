@@ -13,7 +13,7 @@ import {
 import {arrayMove, sortableKeyboardCoordinates} from '@dnd-kit/sortable'
 import {useAtom} from 'jotai'
 import {useState} from 'react'
-import {ItemView} from './item'
+import {useActionData} from './data'
 import {Palette} from './palette'
 import {Rotation} from './rotation'
 import {
@@ -24,6 +24,7 @@ import {
 	itemsAtom,
 	serialisedRotationAtom,
 } from './state'
+import {ActionIcon} from './ui'
 import {AtomUrlPersister} from './utils'
 
 export function App() {
@@ -170,13 +171,22 @@ export function App() {
 				<hr />
 				<Bin />
 				<DragOverlay>
-					{draggingItem != null && <ItemView item={draggingItem} />}
+					{draggingItem != null && <OverlayItemView item={draggingItem} />}
 				</DragOverlay>
 			</DndContext>
 
 			<AtomUrlPersister atom={serialisedRotationAtom} />
 		</>
 	)
+}
+
+export interface OverlayItemViewProps {
+	item: DraggableItem
+}
+
+export function OverlayItemView({item}: OverlayItemViewProps) {
+	const action = useActionData(item.action)
+	return <ActionIcon action={action} />
 }
 
 function Bin() {

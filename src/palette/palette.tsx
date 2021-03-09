@@ -1,7 +1,6 @@
 import {useDraggable} from '@dnd-kit/core'
 import {useAtom} from 'jotai'
 import {Fragment, useEffect, useState} from 'react'
-import {ItemView} from '../item'
 import {JobSelect} from '../jobSelect'
 import {DraggableItem, getDraggableItem, ItemType, paletteAtom} from '../state'
 import {Container, Heading} from '../ui'
@@ -12,6 +11,7 @@ import {
 	fetchPvpCategories,
 	fetchRegularCategories,
 } from './category'
+import {PaletteItemView} from './item'
 
 export function Palette() {
 	const [job, setJob] = useState<Job>()
@@ -85,7 +85,7 @@ function DraggableItemView({item}: DraggableItemViewProps) {
 			{...listeners}
 			style={{display: 'inline-block'}}
 		>
-			<ItemView item={item} />
+			<PaletteItemView item={item} />
 		</div>
 	)
 }
