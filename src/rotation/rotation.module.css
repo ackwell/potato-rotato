@@ -1,6 +1,7 @@
 .rotation {
 	display: flex;
 	flex-wrap: wrap;
+	align-items: flex-start;
 	/* should probably replace this with a placeholder "drop stuff here" */
 	min-height: 32px;
 }

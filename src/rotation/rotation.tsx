@@ -3,7 +3,7 @@ import {SortableContext, useSortable} from '@dnd-kit/sortable'
 import {CSS} from '@dnd-kit/utilities'
 import {Bucket, DraggableItem} from '../state'
 import {Heading, Container} from '../ui'
-import {ItemView} from './item'
+import {RotationItemView} from './item'
 import styles from './rotation.module.css'
 
 export interface RotationProps {
@@ -43,14 +43,14 @@ function SortableItemView({item}: SortableItemViewProps) {
 	})
 
 	const style = {
-		transform: CSS.Transform.toString(transform),
+		transform: CSS.Translate.toString(transform),
 		transition,
 	}
 
 	// todo might be able to avoid the wrapper. consider.
 	return (
 		<div ref={setNodeRef} style={style} {...attributes} {...listeners}>
-			<ItemView item={item} />
+			<RotationItemView item={item} />
 		</div>
 	)
 }
