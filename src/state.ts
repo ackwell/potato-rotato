@@ -9,7 +9,8 @@ export enum ItemType {
 
 export type ActionItem = {type: ItemType.ACTION; action: number}
 export type Item = ActionItem
-export type DraggableItem = Item & {key: string}
+
+export type Draggable<I extends Item> = I & {key: string}
 
 export enum Bucket {
 	ROTATION = 'ROTATION',
@@ -21,13 +22,13 @@ export enum Bucket {
 let nextDraggableId = 0
 const getDraggableKey = () => `${nextDraggableId++}`
 
-export const getDraggableItem = (item: Item): DraggableItem => ({
+export const getDraggableItem = (item: Item): Draggable<Item> => ({
 	...item,
 	key: getDraggableKey(),
 })
 
 // TODO: should we store items by keys separate to the keys in the draggable data, or keep them merged? consider.
-export type Items = Record<Bucket, DraggableItem[]>
+export type Items = Record<Bucket, Draggable<Item>[]>
 export const itemsAtom = atom<Items>({
 	[Bucket.ROTATION]: [],
 	[Bucket.PALETTE]: [],
@@ -63,7 +64,7 @@ export const serialisedRotationAtom = atom(
 
 export const paletteAtom = atom(
 	get => get(itemsAtom)[Bucket.PALETTE],
-	(get, set, update: DraggableItem[]) => {
+	(get, set, update: Draggable<Item>[]) => {
 		set(itemsAtom, items => ({
 			...items,
 			[Bucket.PALETTE]: update,

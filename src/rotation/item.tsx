@@ -1,6 +1,6 @@
 import cx from 'classnames'
 import {useActionData} from '../data'
-import {Item} from '../state'
+import {ActionItem, Item, ItemType} from '../state'
 import {ActionIcon} from '../ui'
 import styles from './item.module.css'
 
@@ -10,7 +10,14 @@ export interface RotationItemViewProps {
 }
 
 export function RotationItemView({item}: RotationItemViewProps) {
-	// TODO: switch case this
+	switch (item.type) {
+		case ItemType.ACTION:
+			return <ActionItemView item={item} />
+	}
+	return null
+}
+
+function ActionItemView({item}: {item: ActionItem}) {
 	const action = useActionData(item.action)
 	return (
 		<div className={cx(styles.item, action?.onGcd && styles.onGcd)}>

@@ -1,9 +1,9 @@
 import {useActionData} from '../data'
-import {Item} from '../state'
+import {ActionItem} from '../state'
 import {ActionIcon} from '../ui'
 
 export interface PaletteItemViewProps {
-	item: Item
+	item: ActionItem
 }
 
 export function PaletteItemView({item}: PaletteItemViewProps) {

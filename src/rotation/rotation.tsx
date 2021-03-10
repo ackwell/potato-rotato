@@ -1,13 +1,13 @@
 import {useDroppable} from '@dnd-kit/core'
 import {SortableContext, useSortable} from '@dnd-kit/sortable'
 import {CSS} from '@dnd-kit/utilities'
-import {Bucket, DraggableItem} from '../state'
+import {Bucket, Draggable, Item} from '../state'
 import {Heading, Container} from '../ui'
 import {RotationItemView} from './item'
 import styles from './rotation.module.css'
 
 export interface RotationProps {
-	items: DraggableItem[]
+	items: Draggable<Item>[]
 }
 
 export function Rotation({items}: RotationProps) {
@@ -30,7 +30,7 @@ export function Rotation({items}: RotationProps) {
 }
 
 interface SortableItemViewProps {
-	item: DraggableItem
+	item: Draggable<Item>
 }
 
 function SortableItemView({item}: SortableItemViewProps) {

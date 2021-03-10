@@ -1,7 +1,13 @@
 import {useDraggable} from '@dnd-kit/core'
 import {useAtom} from 'jotai'
 import {Fragment, useEffect, useState} from 'react'
-import {DraggableItem, getDraggableItem, ItemType, paletteAtom} from '../state'
+import {
+	ActionItem,
+	Draggable,
+	getDraggableItem,
+	ItemType,
+	paletteAtom,
+} from '../state'
 import {Container, Heading} from '../ui'
 import {
 	ActionCategory,
@@ -59,7 +65,11 @@ export function Palette() {
 							<dd>
 								{category.actions.map(action => {
 									// TODO: I guess I could memo an id map for this
-									const item = palette.find(item => item.action === action.id)
+									const item = palette.find(
+										(item): item is Draggable<ActionItem> =>
+											item.type === ItemType.ACTION &&
+											item.action === action.id,
+									)
 									return (
 										item && <DraggableItemView key={item.key} item={item} />
 									)
@@ -74,7 +84,7 @@ export function Palette() {
 }
 
 interface DraggableItemViewProps {
-	item: DraggableItem
+	item: Draggable<ActionItem>
 }
 
 function DraggableItemView({item}: DraggableItemViewProps) {

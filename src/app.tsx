@@ -17,8 +17,9 @@ import {Palette} from './palette'
 import {Rotation, RotationItemView} from './rotation'
 import {
 	Bucket,
-	DraggableItem,
+	Draggable,
 	getDraggableItem,
+	Item,
 	Items,
 	itemsAtom,
 	serialisedRotationAtom,
@@ -29,7 +30,7 @@ import {AtomUrlPersister} from './utils'
 export function App() {
 	const [items, setItems] = useAtom(itemsAtom)
 	const [itemsBackup, setItemsBackup] = useState<Items>()
-	const [draggingItem, setDraggingItem] = useState<DraggableItem>()
+	const [draggingItem, setDraggingItem] = useState<Draggable<Item>>()
 
 	function findBucket(key: string): Bucket {
 		// Key might be a bucket unto itself, check first
@@ -55,7 +56,7 @@ export function App() {
 
 	function onDragStart({active}: DragStartEvent) {
 		// Set the active item for use in the drag overlay
-		let draggingItem: DraggableItem | undefined
+		let draggingItem: Draggable<Item> | undefined
 		for (const bucketItems of Object.values(items)) {
 			draggingItem = bucketItems.find(item => item.key === active.id)
 			if (draggingItem != null) {
