@@ -14,7 +14,6 @@
 		"@dnd-kit/utilities": "^1.0.2",
 		"@xivanalysis/tooltips": "^0.1.4",
 		"byte-base64": "^1.1.0",
-		"capsize": "^1.1.0",
 		"classnames": "^2.2.6",
 		"jotai": "^0.15.2",
 		"msgpack-lite": "^0.1.26",

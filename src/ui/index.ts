@@ -1,5 +1,5 @@
-export {Container} from './container'
-export type {ContainerProps} from './container'
+export {Container, ContainerHeader} from './container'
+export type {ContainerProps, ContainerHeaderProps} from './container'
 export {Heading} from './heading'
 export type {HeadingProps} from './heading'
 export {ActionIcon} from './icon'

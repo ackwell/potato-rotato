@@ -1,5 +1,11 @@
+@value themeBackground from '../theme.module.css';
+
 .container {
 	border-radius: 2rem;
 	padding: 1rem;
-	background: #faa;
+	background: themeBackground;
+}
+
+.header {
+	padding: 0 1rem 1rem;
 }

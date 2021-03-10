@@ -8,7 +8,7 @@ import {
 	ItemType,
 	paletteAtom,
 } from '../state'
-import {Container, Heading} from '../ui'
+import {Container, ContainerHeader, Heading} from '../ui'
 import {
 	ActionCategory,
 	fetchBozjaCategories,
@@ -54,7 +54,9 @@ export function Palette() {
 
 	return (
 		<>
-			<Heading>Palette</Heading>
+			<ContainerHeader>
+				<Heading>Palette</Heading>
+			</ContainerHeader>
 			<Container>
 				<JobSelect value={job} onChange={setJob} />
 

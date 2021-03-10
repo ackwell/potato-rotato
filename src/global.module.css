@@ -1,5 +1,6 @@
-@import-normalize;
+@value themeBackdrop from './theme.module.css';
 
+@import-normalize;
 @import url('https://fonts.googleapis.com/css2?family=Teko&display=swap');
 
 :root {
@@ -8,6 +9,11 @@
 }
 
 body {
+	margin: 0;
+	padding: 5rem;
+
 	/* Actual text size */
 	font-size: 2rem;
+
+	background: themeBackdrop;
 }

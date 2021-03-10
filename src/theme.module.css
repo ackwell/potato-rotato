@@ -1,0 +1,7 @@
+:root {
+	--theme-backdrop: #f5f5f6;
+	--theme-background: #e1e2e1;
+}
+
+@value themeBackdrop: var(--theme-backdrop);
+@value themeBackground: var(--theme-background);

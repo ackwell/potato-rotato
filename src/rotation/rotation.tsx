@@ -2,7 +2,7 @@ import {useDroppable} from '@dnd-kit/core'
 import {SortableContext, useSortable} from '@dnd-kit/sortable'
 import {CSS} from '@dnd-kit/utilities'
 import {Bucket, Draggable, Item} from '../state'
-import {Heading, Container} from '../ui'
+import {Heading, Container, ContainerHeader} from '../ui'
 import {RotationItemView} from './item'
 import styles from './rotation.module.css'
 
@@ -15,7 +15,9 @@ export function Rotation({items}: RotationProps) {
 
 	return (
 		<>
-			<Heading>Rotation</Heading>
+			<ContainerHeader>
+				<Heading>Rotation</Heading>
+			</ContainerHeader>
 			<Container>
 				<div ref={setNodeRef} className={styles.rotation}>
 					<SortableContext items={items.map(item => item.key)}>
