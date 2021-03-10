@@ -14,7 +14,7 @@ export function RotationItemView({item}: RotationItemViewProps) {
 		case ItemType.ACTION:
 			return <ActionItemView item={item} />
 	}
-	return null
+	return <>UNK:{ItemType[item.type]}</>
 }
 
 function ActionItemView({item}: {item: ActionItem}) {

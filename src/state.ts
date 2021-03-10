@@ -4,11 +4,13 @@ import msgpack from 'msgpack-lite'
 import pako from 'pako'
 
 export enum ItemType {
-	ACTION,
+	ACTION = 0,
+	PULL = 1,
 }
 
 export type ActionItem = {type: ItemType.ACTION; action: number}
-export type Item = ActionItem
+export type PullItem = {type: ItemType.PULL}
+export type Item = ActionItem | PullItem
 
 export type Draggable<I extends Item> = I & {key: string}
 
