@@ -14,16 +14,18 @@ export function Rotation({items}: RotationProps) {
 	const {setNodeRef} = useDroppable({id: Bucket.ROTATION})
 
 	return (
-		<Container>
+		<>
 			<Heading>Rotation</Heading>
-			<div ref={setNodeRef} className={styles.rotation}>
-				<SortableContext items={items.map(item => item.key)}>
-					{items.map(item => (
-						<SortableItemView key={item.key} item={item} />
-					))}
-				</SortableContext>
-			</div>
-		</Container>
+			<Container>
+				<div ref={setNodeRef} className={styles.rotation}>
+					<SortableContext items={items.map(item => item.key)}>
+						{items.map(item => (
+							<SortableItemView key={item.key} item={item} />
+						))}
+					</SortableContext>
+				</div>
+			</Container>
+		</>
 	)
 }
 

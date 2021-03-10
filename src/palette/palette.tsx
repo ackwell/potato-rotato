@@ -27,6 +27,8 @@ export function Palette() {
 		setPalette([])
 
 		// TODO: Opt-in for all but regular, and make their requests lazy.
+		// TODO: Categories
+		// - Items / general actions
 		Promise.all([
 			fetchRegularCategories(job),
 			fetchPvpCategories(job),
@@ -45,25 +47,29 @@ export function Palette() {
 	}, [job, setPalette])
 
 	return (
-		<Container>
+		<>
 			<Heading>Palette</Heading>
-			<JobSelect value={job} onChange={setJob} />
+			<Container>
+				<JobSelect value={job} onChange={setJob} />
 
-			<dl>
-				{categories.map((category, index) => (
-					<Fragment key={index}>
-						<dt>{category.name}</dt>
-						<dd>
-							{category.actions.map(action => {
-								// TODO: I guess I could memo an id map for this
-								const item = palette.find(item => item.action === action.id)
-								return item && <DraggableItemView key={item.key} item={item} />
-							})}
-						</dd>
-					</Fragment>
-				))}
-			</dl>
-		</Container>
+				<dl>
+					{categories.map((category, index) => (
+						<Fragment key={index}>
+							<dt>{category.name}</dt>
+							<dd>
+								{category.actions.map(action => {
+									// TODO: I guess I could memo an id map for this
+									const item = palette.find(item => item.action === action.id)
+									return (
+										item && <DraggableItemView key={item.key} item={item} />
+									)
+								})}
+							</dd>
+						</Fragment>
+					))}
+				</dl>
+			</Container>
+		</>
 	)
 }
 

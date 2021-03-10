@@ -23,6 +23,7 @@ import {
 	itemsAtom,
 	serialisedRotationAtom,
 } from './state'
+import {Heading, Stack} from './ui'
 import {AtomUrlPersister} from './utils'
 
 export function App() {
@@ -163,11 +164,11 @@ export function App() {
 				onDragEnd={onDragEnd}
 				onDragCancel={onDragCancel}
 			>
-				<Rotation items={items[Bucket.ROTATION]} />
-				<hr />
-				<Palette />
-				<hr />
-				<Bin />
+				<Stack>
+					<Rotation items={items[Bucket.ROTATION]} />
+					<Palette />
+					<Bin />
+				</Stack>
 				<DragOverlay>
 					{draggingItem != null && (
 						<RotationItemView overlay item={draggingItem} />
@@ -184,7 +185,7 @@ function Bin() {
 	const {setNodeRef, isOver} = useDroppable({id: Bucket.BIN})
 	return (
 		<div ref={setNodeRef} style={{background: isOver ? 'red' : undefined}}>
-			bin
+			<Heading>Bin</Heading>
 		</div>
 	)
 }
