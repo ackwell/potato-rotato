@@ -1,7 +1,13 @@
 :root {
-	--theme-backdrop: #f5f5f6;
-	--theme-background: #e1e2e1;
+	--theme-text: #182026;
+
+	--theme-background-1: #f5f8fa;
+	--theme-background-2: #d8e1e8;
+	--theme-background-3: #a7b6c2;
 }
 
-@value themeBackdrop: var(--theme-backdrop);
-@value themeBackground: var(--theme-background);
+@value themeText: var(--theme-text);
+
+@value themeBackground1: var(--theme-background-1);
+@value themeBackground2: var(--theme-background-2);
+@value themeBackground3: var(--theme-background-3);

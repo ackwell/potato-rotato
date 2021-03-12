@@ -1,9 +1,9 @@
-@value themeBackground from '../theme.module.css';
+@value themeBackground2 from '../theme.module.css';
 
 .container {
 	border-radius: 2rem;
 	padding: 1rem;
-	background: themeBackground;
+	background: themeBackground2;
 	overflow: hidden;
 }
 

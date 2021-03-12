@@ -1,4 +1,5 @@
-@value themeBackdrop from './theme.module.css';
+@value themeBackground1 from './theme.module.css';
+@value themeText from './theme.module.css';
 
 @import-normalize;
 @import url('https://fonts.googleapis.com/css2?family=Teko&display=swap');
@@ -18,8 +19,7 @@ body {
 	margin: 0;
 	padding: 5rem;
 
-	/* Actual text size */
+	color: themeText;
 	font-size: 2rem;
-
-	background: themeBackdrop;
+	background: themeBackground1;
 }

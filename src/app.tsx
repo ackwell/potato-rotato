@@ -22,6 +22,7 @@ import {
 	Item,
 	Items,
 	itemsAtom,
+	ItemType,
 	serialisedRotationAtom,
 } from './state'
 import {Heading, Stack} from './ui'
@@ -156,6 +157,14 @@ export function App() {
 		setItemsBackup(undefined)
 	}
 
+	// We want to disable the drop animation for the pull marker due to the
+	// backdrop we render. Totally disabling it causes issues where the overlay
+	// just hangs around, so we set it to 0 duration.
+	const overlayDropAnimation =
+		draggingItem?.type === ItemType.PULL
+			? {duration: 0, easing: 'ease'}
+			: undefined
+
 	return (
 		<>
 			<DndContext
@@ -170,7 +179,7 @@ export function App() {
 					<Palette />
 					<Bin />
 				</Stack>
-				<DragOverlay>
+				<DragOverlay dropAnimation={overlayDropAnimation}>
 					{draggingItem != null && (
 						<RotationItemView overlay item={draggingItem} />
 					)}

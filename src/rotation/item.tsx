@@ -55,16 +55,17 @@ function PullItemView({
 	overlay: boolean
 	sortable?: SortableOptions
 }) {
+	// The pull marker has a more-involved inline UI, we don't need a drag overlay for this one
+	if (overlay) {
+		return null
+	}
+
 	return (
 		<SortableWrapper
 			sortable={sortable}
-			className={cx(styles.item, styles.pull, !overlay && styles.showRegion)}
+			className={cx(styles.item, styles.pull)}
 		>
-			<div
-				style={{zIndex: 0, position: 'relative', transform: 'rotate(90deg)'}}
-			>
-				Pull
-			</div>
+			<span className={styles.pullText}>Pull</span>
 		</SortableWrapper>
 	)
 }

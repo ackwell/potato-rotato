@@ -1,3 +1,5 @@
+@value themeBackground3 from '../theme.module.css';
+
 .item {
 	position: relative;
 	z-index: 1;
@@ -15,28 +17,56 @@ bottom-left alignment.
 }
 
 .pull {
-	background: #faa;
 	font-family: sans-serif;
 	z-index: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
 }
 
-.pull.showRegion::before {
+.pull::before,
+.pull::after {
 	content: '';
 	position: absolute;
+	z-index: -1;
+	background: themeBackground3;
+	pointer-events: none;
+}
+
+.pull::before {
 	top: -1rem;
 	right: 0;
 	height: calc(100% + 2rem);
 	width: 100vw;
-	background: #afa;
+	border-bottom-right-radius: 2rem;
 }
 
-.pull.showRegion::after {
-	content: '';
-	position: absolute;
+.pull::after {
 	bottom: calc(100% + 1rem);
-	left: 0;
 	width: 200vw;
 	height: 100vh;
-	margin-left: -100vw;
-	background: #aaf;
+}
+
+/* This is semi copied from header. TODO: Consolidate typography. */
+.pullText {
+	text-transform: uppercase;
+
+	font-family: 'Teko', sans-serif;
+	font-size: 19.1693px;
+	line-height: 20px;
+	padding: 0.05px 0;
+}
+
+.pullText::before {
+	content: '';
+	margin-top: -0.1398em;
+	display: block;
+	height: 0;
+}
+
+.pullText::after {
+	content: '';
+	margin-bottom: -0.2828em;
+	display: block;
+	height: 0;
 }
