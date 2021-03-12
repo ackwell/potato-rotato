@@ -1,9 +1,10 @@
 import {ActionData} from '../data'
+import {API_HOST} from '../xivapi'
 import styles from './icon.module.css'
 
 // TODO: Should probably make base path configurable. pull from tooltip lib config, or...?
 // macro ? icon
-const ACTION_ICON_FALLBACK = 'https://xivapi.com/i/066000/066313.png'
+const ACTION_ICON_FALLBACK = `${API_HOST}/i/066000/066313.png`
 
 export interface ActionIconProps {
 	action?: ActionData
