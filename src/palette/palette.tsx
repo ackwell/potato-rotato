@@ -58,10 +58,9 @@ export function Palette() {
 		<>
 			<ContainerHeader>
 				<Heading>Palette</Heading>
+				<JobSelect value={job} onChange={setJob} />
 			</ContainerHeader>
 			<Container>
-				<JobSelect value={job} onChange={setJob} />
-
 				<dl>
 					{categories.map((category, index) => (
 						<Fragment key={index}>

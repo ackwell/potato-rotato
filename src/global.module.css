@@ -2,6 +2,7 @@
 @value themeText from './theme.module.css';
 
 @import-normalize;
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Teko&display=swap');
 
 :root {
@@ -20,6 +21,7 @@ body {
 	padding: 5rem;
 
 	color: themeText;
+	font-family: 'Open Sans', sans-serif;
 	font-size: 2rem;
 	background: themeBackground1;
 }
