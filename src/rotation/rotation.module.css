@@ -1,10 +1,9 @@
-.rotation {
-	display: flex;
-	flex-wrap: wrap;
-	align-items: flex-start;
+@value itemWidth: 5rem;
 
-	/* This accounts for the margins coming from the items. */
-	margin-bottom: -2rem;
+.rotation {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, itemWidth);
+	row-gap: 2rem;
 
 	/* should probably replace this with a placeholder "drop stuff here" */
 	min-height: 32px;
