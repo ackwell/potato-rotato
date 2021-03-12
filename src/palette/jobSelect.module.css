@@ -1,0 +1,11 @@
+.container {
+	display: flex;
+}
+
+.select {
+	border: none;
+	background: none;
+	font-size: inherit;
+	/* XIV very "helpfully" keeps all job names in lower case. */
+	text-transform: capitalize;
+}

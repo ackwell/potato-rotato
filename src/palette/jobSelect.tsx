@@ -1,5 +1,7 @@
 import {ChangeEvent, useCallback, useEffect, useState} from 'react'
+import {Heading} from '../ui'
 import {fetchXivapi, XivApiListing} from '../xivapi'
+import styles from './jobSelect.module.css'
 
 export interface Job {
 	id: number
@@ -26,16 +28,23 @@ export function JobSelect({value, onChange}: JobSelectProps) {
 	)
 
 	return (
-		<select onChange={onSelectChange} value={value?.id ?? 'none'}>
-			<option disabled value="none">
-				{jobs == null ? 'Loading' : 'Select a job'}
-			</option>
-			{jobs?.map(job => (
-				<option key={job.id} value={job.id}>
-					{job.name}
+		<div className={styles.container}>
+			<Heading>Job:</Heading>&nbsp;
+			<select
+				onChange={onSelectChange}
+				value={value?.id ?? 'none'}
+				className={styles.select}
+			>
+				<option disabled value="none">
+					{jobs == null ? 'Loading' : 'Select a job'}
 				</option>
-			))}
-		</select>
+				{jobs?.map(job => (
+					<option key={job.id} value={job.id}>
+						{job.name}
+					</option>
+				))}
+			</select>
+		</div>
 	)
 }
 
