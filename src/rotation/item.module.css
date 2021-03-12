@@ -1,4 +1,10 @@
 .item {
+	position: relative;
+	z-index: 1;
+	/* 5 (icon) + 2 (padding) */
+	/* TODO: Add space for annotations? */
+	height: 7rem;
+	margin-bottom: 2rem;
 	line-height: 0;
 }
 
@@ -10,4 +16,31 @@ bottom-left alignment.
 */
 .onGcd {
 	padding-top: 2rem;
+}
+
+.pull {
+	background: #faa;
+	font-family: sans-serif;
+	z-index: 0;
+}
+
+.pull.showRegion::before {
+	content: '';
+	position: absolute;
+	top: -1rem;
+	right: 0;
+	height: calc(100% + 2rem);
+	width: 100vw;
+	background: #afa;
+}
+
+.pull.showRegion::after {
+	content: '';
+	position: absolute;
+	bottom: calc(100% + 1rem);
+	left: 0;
+	width: 200vw;
+	height: 100vh;
+	margin-left: -100vw;
+	background: #aaf;
 }

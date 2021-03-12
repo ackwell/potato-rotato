@@ -17,11 +17,14 @@ export interface RotationItemViewProps {
 
 export function RotationItemView({
 	item,
+	overlay = false,
 	sortable,
 }: RotationItemViewProps) {
 	switch (item.type) {
 		case ItemType.ACTION:
 			return <ActionItemView item={item} sortable={sortable} />
+		case ItemType.PULL:
+			return <PullItemView overlay={overlay} sortable={sortable} />
 		default:
 			return <>UNK:{ItemType[(item as any).type]}</>
 	}
@@ -41,6 +44,27 @@ function ActionItemView({
 			className={cx(styles.item, action?.onGcd && styles.onGcd)}
 		>
 			<ActionIcon action={action} />
+		</SortableWrapper>
+	)
+}
+
+function PullItemView({
+	overlay,
+	sortable,
+}: {
+	overlay: boolean
+	sortable?: SortableOptions
+}) {
+	return (
+		<SortableWrapper
+			sortable={sortable}
+			className={cx(styles.item, styles.pull, !overlay && styles.showRegion)}
+		>
+			<div
+				style={{zIndex: 0, position: 'relative', transform: 'rotate(90deg)'}}
+			>
+				Pull
+			</div>
 		</SortableWrapper>
 	)
 }

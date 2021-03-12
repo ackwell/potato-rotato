@@ -2,6 +2,10 @@
 	display: flex;
 	flex-wrap: wrap;
 	align-items: flex-start;
+
+	/* This accounts for the margins coming from the items. */
+	margin-bottom: -2rem;
+
 	/* should probably replace this with a placeholder "drop stuff here" */
 	min-height: 32px;
 }
