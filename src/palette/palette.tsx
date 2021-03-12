@@ -14,6 +14,7 @@ import {
 	fetchBozjaCategories,
 	fetchPvpCategories,
 	fetchRegularCategories,
+	fetchRoleCategories,
 } from './category'
 import {PaletteItemView} from './item'
 import {Job, JobSelect} from './jobSelect'
@@ -37,6 +38,7 @@ export function Palette() {
 		// - Items / general actions
 		Promise.all([
 			fetchRegularCategories(job),
+			fetchRoleCategories(job),
 			fetchPvpCategories(job),
 			fetchBozjaCategories(job),
 		]).then(categoryGroups => {

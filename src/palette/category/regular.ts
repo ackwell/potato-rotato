@@ -31,7 +31,7 @@ const actionIndirectionData = fetchXivapi(
 			jobExtras = []
 			extras.set(job, jobExtras)
 		}
-		jobExtras.push({...action, ClassJobTargetID: job})
+		jobExtras.push({...action})
 	}
 
 	return {hide, extras}
@@ -39,7 +39,6 @@ const actionIndirectionData = fetchXivapi(
 
 interface XivApiAction {
 	ID: number
-	ClassJobTargetID: number
 	ClassJobLevel: number
 }
 
@@ -57,7 +56,7 @@ export async function fetchRegularCategories(
 
 	const [{Results: regularActions}, {hide, extras}] = await Promise.all([
 		fetchXivapi<XivApiListing<XivApiAction>>(
-			`search?indexes=action&filters=${filters}&columns=ID,ClassJobTargetID,ClassJobLevel`,
+			`search?indexes=action&filters=${filters}&columns=ID,ClassJobLevel`,
 		),
 		actionIndirectionData,
 	])
@@ -72,7 +71,6 @@ export async function fetchRegularCategories(
 	actions.sort((a, b) => a.ClassJobLevel - b.ClassJobLevel)
 
 	// TODO: Pet?
-	// TODO: Role actions
 
 	// TODO: Split GCD/OGCD
 	return [
