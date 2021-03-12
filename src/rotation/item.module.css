@@ -6,6 +6,15 @@
 	line-height: 0;
 }
 
+.draggable {
+	touch-action: none;
+	cursor: grab;
+}
+
+.dragging {
+	opacity: 0.5;
+}
+
 /*
 This probably looks a bit backwards.
 The draggable lib pins all positioning at the top left, so if we neartly align across

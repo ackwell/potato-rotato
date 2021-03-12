@@ -28,6 +28,8 @@ import {
 import {Heading, Stack} from './ui'
 import {AtomUrlPersister} from './utils'
 
+// TODO: "View" mode
+
 export function App() {
 	const [items, setItems] = useAtom(itemsAtom)
 	const [itemsBackup, setItemsBackup] = useState<Items>()

@@ -3,40 +3,32 @@ import {CSS} from '@dnd-kit/utilities'
 import cx from 'classnames'
 import {ReactNode} from 'react'
 import {useActionData} from '../data'
-import {ActionItem, Item, ItemType} from '../state'
+import {ActionItem, Item, ItemType, PullItem} from '../state'
 import {ActionIcon} from '../ui'
 import styles from './item.module.css'
 
 type SortableOptions = ReturnType<typeof useSortable>
 
-export interface RotationItemViewProps {
-	item: Item
+interface ItemViewProps<I extends Item> {
+	item: I
 	overlay?: boolean
 	sortable?: SortableOptions
 }
 
-export function RotationItemView({
-	item,
-	overlay = false,
-	sortable,
-}: RotationItemViewProps) {
-	switch (item.type) {
+export type RotationItemViewProps = ItemViewProps<Item>
+
+export function RotationItemView(props: RotationItemViewProps) {
+	switch (props.item.type) {
 		case ItemType.ACTION:
-			return <ActionItemView item={item} sortable={sortable} />
+			return <ActionItemView {...(props as ItemViewProps<ActionItem>)} />
 		case ItemType.PULL:
-			return <PullItemView overlay={overlay} sortable={sortable} />
+			return <PullItemView {...(props as ItemViewProps<PullItem>)} />
 		default:
-			return <>UNK:{ItemType[(item as any).type]}</>
+			return <>UNK:{ItemType[(props.item as any).type]}</>
 	}
 }
 
-function ActionItemView({
-	item,
-	sortable,
-}: {
-	item: ActionItem
-	sortable?: SortableOptions
-}) {
+function ActionItemView({item, sortable}: ItemViewProps<ActionItem>) {
 	const action = useActionData(item.action)
 	return (
 		<SortableWrapper
@@ -48,13 +40,7 @@ function ActionItemView({
 	)
 }
 
-function PullItemView({
-	overlay,
-	sortable,
-}: {
-	overlay: boolean
-	sortable?: SortableOptions
-}) {
+function PullItemView({overlay, sortable}: ItemViewProps<PullItem>) {
 	// The pull marker has a more-involved inline UI, we don't need a drag overlay for this one
 	if (overlay) {
 		return null
@@ -94,6 +80,11 @@ function SortableWrapper({
 				transform: CSS.Translate.toString(sortable.transform),
 				transition: sortable.transition,
 			},
+			className: cx(
+				props.className,
+				styles.draggable,
+				sortable.isDragging && styles.dragging,
+			),
 			...sortable.attributes,
 			...sortable.listeners,
 		}
