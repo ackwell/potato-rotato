@@ -1,6 +1,5 @@
 import {useDroppable} from '@dnd-kit/core'
 import {SortableContext, useSortable} from '@dnd-kit/sortable'
-import {CSS} from '@dnd-kit/utilities'
 import {Bucket, Draggable, Item} from '../state'
 import {Heading, Container, ContainerHeader} from '../ui'
 import {RotationItemView} from './item'
@@ -36,25 +35,7 @@ interface SortableItemViewProps {
 }
 
 function SortableItemView({item}: SortableItemViewProps) {
-	const {
-		setNodeRef,
-		attributes,
-		listeners,
-		transform,
-		transition,
-	} = useSortable({
-		id: item.key,
-	})
+	const sortable = useSortable({id: item.key})
 
-	const style = {
-		transform: CSS.Translate.toString(transform),
-		transition,
-	}
-
-	// todo might be able to avoid the wrapper. consider.
-	return (
-		<div ref={setNodeRef} style={style} {...attributes} {...listeners}>
-			<RotationItemView item={item} />
-		</div>
-	)
+	return <RotationItemView item={item} sortable={sortable} />
 }
