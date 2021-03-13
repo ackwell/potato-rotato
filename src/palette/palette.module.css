@@ -1,0 +1,17 @@
+.item + .item {
+	margin-top: 2rem;
+}
+
+.button {
+	/* Hopefully people have not-ancient browsers */
+	all: inherit;
+}
+
+.button.expanded {
+	padding-bottom: 1rem;
+	color: red;
+}
+
+.panel {
+	line-height: 0;
+}

@@ -28,12 +28,12 @@ export function RotationItemView(props: RotationItemViewProps) {
 	}
 }
 
-function ActionItemView({item, sortable}: ItemViewProps<ActionItem>) {
+function ActionItemView({item, overlay, sortable}: ItemViewProps<ActionItem>) {
 	const action = useActionData(item.action)
 	return (
 		<SortableWrapper
 			sortable={sortable}
-			className={cx(styles.item, action?.onGcd && styles.onGcd)}
+			className={cx(styles.item, action?.onGcd && !overlay && styles.onGcd)}
 		>
 			<ActionIcon action={action} />
 		</SortableWrapper>

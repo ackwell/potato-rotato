@@ -13,6 +13,7 @@
 		"@dnd-kit/core": "^1.0.2",
 		"@dnd-kit/sortable": "^1.0.2",
 		"@dnd-kit/utilities": "^1.0.2",
+		"@reach/accordion": "^0.13.2",
 		"@xivanalysis/tooltips": "^0.1.4",
 		"byte-base64": "^1.1.0",
 		"classnames": "^2.2.6",

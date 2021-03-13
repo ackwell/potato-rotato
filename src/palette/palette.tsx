@@ -1,6 +1,13 @@
 import {useDraggable} from '@dnd-kit/core'
+import {
+	Accordion,
+	AccordionButton,
+	AccordionItem,
+	AccordionPanel,
+} from '@reach/accordion'
+import cx from 'classnames'
 import {useAtom} from 'jotai'
-import {Fragment, useEffect, useState} from 'react'
+import {useEffect, useState} from 'react'
 import {
 	ActionItem,
 	Draggable,
@@ -18,11 +25,22 @@ import {
 } from './category'
 import {PaletteItemView} from './item'
 import {Job, JobSelect} from './jobSelect'
+import styles from './palette.module.css'
+
+import '@reach/accordion/styles.css'
 
 export function Palette() {
 	const [job, setJob] = useState<Job>()
 	const [categories, setCategories] = useState<ActionCategory[]>([])
 	const [palette, setPalette] = useAtom(paletteAtom)
+
+	const [open, setOpen] = useState<number[]>([])
+	const toggleOpenIndex = (index: number) =>
+		setOpen(open =>
+			open.includes(index)
+				? [...open.filter(thing => index !== thing)]
+				: [...open, index],
+		)
 
 	// When job is updated, fetch & categorise actions for the new selection
 	useEffect(() => {
@@ -61,11 +79,20 @@ export function Palette() {
 				<JobSelect value={job} onChange={setJob} />
 			</ContainerHeader>
 			<Container>
-				<dl>
+				<Accordion index={open} onChange={toggleOpenIndex}>
 					{categories.map((category, index) => (
-						<Fragment key={index}>
-							<dt>{category.name}</dt>
-							<dd>
+						<AccordionItem key={index} className={styles.item}>
+							<Heading level={3}>
+								<AccordionButton
+									className={cx(
+										styles.button,
+										open.includes(index) && styles.expanded,
+									)}
+								>
+									{category.name}
+								</AccordionButton>
+							</Heading>
+							<AccordionPanel className={styles.panel}>
 								{category.actions.map(action => {
 									// TODO: I guess I could memo an id map for this
 									const item = palette.find(
@@ -77,10 +104,10 @@ export function Palette() {
 										item && <DraggableItemView key={item.key} item={item} />
 									)
 								})}
-							</dd>
-						</Fragment>
+							</AccordionPanel>
+						</AccordionItem>
 					))}
-				</dl>
+				</Accordion>
 			</Container>
 		</>
 	)
@@ -96,6 +123,7 @@ function DraggableItemView({item}: DraggableItemViewProps) {
 	})
 
 	// todo might be able to avoid the wrapper. consider.
+	// todo merge all item views back together again i guess
 	return (
 		<div
 			ref={setNodeRef}
