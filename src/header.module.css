@@ -1,0 +1,40 @@
+.title {
+	margin: 0;
+	/* TODO: Part of stack */
+	margin-bottom: 5rem;
+
+	font-family: 'Teko', sans-serif;
+	font-size: 51.1182px;
+	line-height: 32px;
+	padding: 0.05px 0;
+}
+
+.title::before {
+	content: '';
+	margin-top: 0.0705em;
+	display: block;
+	height: 0;
+}
+
+.title::after {
+	content: '';
+	margin-bottom: -0.0725em;
+	display: block;
+	height: 0;
+}
+
+@media (min-width: 576px) {
+	.title {
+		font-size: 76.6773px;
+		line-height: 48px;
+	}
+
+	.title::before {
+		margin-top: 0.0708em;
+	}
+
+	.title::after {
+		content: '';
+		margin-bottom: -0.0722em;
+	}
+}

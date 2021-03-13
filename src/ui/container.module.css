@@ -1,6 +1,7 @@
 @value themeBackground2 from '../theme.module.css';
 
 .container {
+	margin: 0 -1rem;
 	border-radius: 2rem;
 	padding: 1rem;
 	background: themeBackground2;
@@ -10,5 +11,5 @@
 .header {
 	display: flex;
 	justify-content: space-between;
-	padding: 0 1rem 1rem;
+	padding: 0 0 1rem;
 }

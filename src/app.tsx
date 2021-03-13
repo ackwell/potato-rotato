@@ -13,6 +13,7 @@ import {
 import {arrayMove, sortableKeyboardCoordinates} from '@dnd-kit/sortable'
 import {useAtom} from 'jotai'
 import {useState} from 'react'
+import {Header} from './header'
 import {Palette} from './palette'
 import {Rotation, RotationItemView} from './rotation'
 import {
@@ -177,6 +178,7 @@ export function App() {
 				onDragCancel={onDragCancel}
 			>
 				<Stack>
+					<Header />
 					<Rotation items={items[Bucket.ROTATION]} />
 					<Palette />
 					<Bin />
