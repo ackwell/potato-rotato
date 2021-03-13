@@ -1,29 +1,22 @@
-import {ReactNode, useEffect, useRef, useState} from 'react'
+import cx from 'classnames'
+import {createElement, ReactNode} from 'react'
 import styles from './heading.module.css'
+
+const fontClass = new Map([
+	[2, styles.level2],
+	[3, styles.level3],
+])
 
 export interface HeadingProps {
 	children?: ReactNode
 	id?: string
+	level?: number
 }
 
-export function Heading({children, id}: HeadingProps) {
-	// Headings have a `text-transform: uppercase` on them, which reads poorly in ARIA.
-	// Extract the text content of children and set it on the label prop to improve.
-	const [childText, setChildText] = useState('')
-
-	const headingRef = useRef<HTMLHeadingElement>(null)
-	useEffect(() => {
-		setChildText(headingRef.current?.textContent ?? '')
-	}, [children])
-
-	return (
-		<h2
-			ref={headingRef}
-			id={id}
-			className={styles.heading}
-			aria-label={childText}
-		>
-			{children}
-		</h2>
+export function Heading({children, id, level = 2}: HeadingProps) {
+	return createElement(
+		`h${level}`,
+		{id, className: cx(styles.heading, fontClass.get(level))},
+		children,
 	)
 }
