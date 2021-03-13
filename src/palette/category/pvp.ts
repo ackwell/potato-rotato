@@ -1,4 +1,3 @@
-import {exists} from '../../utils'
 import {fetchXivapi, XivApiListing} from '../../xivapi'
 import {Job} from '../jobSelect'
 import {Action, ActionCategory} from './base'
@@ -23,9 +22,10 @@ interface PvpAction extends Action {
 	order: number
 }
 
-const pvpActionSortData = fetchXivapi(
-	'PvPActionSort?limit=1000&columns=ID,Name,ActionType,Action.ID,Action.ClassJobCategory',
-).then((json: XivApiListing<XivApiPvPActionSort>) => {
+async function fetchAllData() {
+	const json = await fetchXivapi<XivApiListing<XivApiPvPActionSort>>(
+		'PvPActionSort?limit=1000&columns=ID,Name,ActionType,Action.ID,Action.ClassJobCategory',
+	)
 	// Sheet stores values separately for every job, so shared actions will be duped. Ignore dupes.
 	// TODO: This is nuking sortOrder for some actions that are shared. Once Miu merges PvPActionSortRow we'll be able to use it to clean up a bit.
 	const seen = new Set<number>()
@@ -70,15 +70,22 @@ const pvpActionSortData = fetchXivapi(
 	}
 
 	return {jobGroups}
-})
+}
 
-export async function fetchPvpCategories(job: Job): Promise<ActionCategory[]> {
-	const {jobGroups} = await pvpActionSortData
-	const actions = jobGroups.get(job.classJobCategoryKey)
-	return [
-		actions && {
-			name: 'PvP Actions',
-			actions,
-		},
-	].filter(exists)
+let dataCache: ReturnType<typeof fetchAllData> | undefined
+async function fetchActions(job: Job) {
+	if (dataCache == null) {
+		dataCache = fetchAllData()
+	}
+
+	const {jobGroups} = await dataCache
+
+	return jobGroups.get(job.classJobCategoryKey) ?? []
+}
+
+export function getPvpCategory(job: Job): ActionCategory {
+	return {
+		name: 'PvP Actions',
+		fetchActions: () => fetchActions(job),
+	}
 }

@@ -88,7 +88,6 @@ export function App() {
 
 		// Need to move the item between containers
 		setItems(items => {
-			// todo: if pulling from palette, need to replace active with copy w new id
 			const activeItems = items[activeBucket]
 			const activeIndex = activeItems.findIndex(item => item.key === active.id)
 

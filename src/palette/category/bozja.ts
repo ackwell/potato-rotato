@@ -1,9 +1,6 @@
-import {exists} from '../../utils'
 import {fetchXivapi, XivApiListing} from '../../xivapi'
 import {Job} from '../jobSelect'
 import {Action, ActionCategory} from './base'
-
-export {}
 
 // MYCTemporaryItem contains all the data for "Lost" items and actions available in Save The Queen areas
 interface XivApiMYCTemporaryItem {
@@ -20,9 +17,10 @@ interface BozjaAction extends Action {
 	order: number
 }
 
-const bozjaActionData = fetchXivapi(
-	`MYCTemporaryItem?limit=500&columns=Order,CategoryTargetID,Action.ID,Action.ClassJobCategory`,
-).then((json: XivApiListing<XivApiMYCTemporaryItem>) => {
+async function fetchAllData() {
+	const json = await fetchXivapi<XivApiListing<XivApiMYCTemporaryItem>>(
+		`MYCTemporaryItem?limit=500&columns=Order,CategoryTargetID,Action.ID,Action.ClassJobCategory`,
+	)
 	const jobGroups = new Map<string, BozjaAction[]>()
 
 	// This is copypasta from pvp, might be able to dedupe a bit i guess
@@ -50,17 +48,22 @@ const bozjaActionData = fetchXivapi(
 	}
 
 	return {jobGroups}
-})
+}
 
-export async function fetchBozjaCategories(
-	job: Job,
-): Promise<ActionCategory[]> {
-	const {jobGroups} = await bozjaActionData
-	const actions = jobGroups.get(job.classJobCategoryKey)
-	return [
-		actions && {
-			name: 'Lost Actions',
-			actions,
-		},
-	].filter(exists)
+let dataCache: ReturnType<typeof fetchAllData> | undefined
+async function fetchActions(job: Job) {
+	if (dataCache == null) {
+		dataCache = fetchAllData()
+	}
+
+	const {jobGroups} = await dataCache
+
+	return jobGroups.get(job.classJobCategoryKey) ?? []
+}
+
+export function getBozjaCategory(job: Job): ActionCategory {
+	return {
+		name: 'Lost Actions',
+		fetchActions: () => fetchActions(job),
+	}
 }

@@ -63,13 +63,3 @@ export const serialisedRotationAtom = atom(
 		}))
 	},
 )
-
-export const paletteAtom = atom(
-	get => get(itemsAtom)[Bucket.PALETTE],
-	(get, set, update: Draggable<Item>[]) => {
-		set(itemsAtom, items => ({
-			...items,
-			[Bucket.PALETTE]: update,
-		}))
-	},
-)

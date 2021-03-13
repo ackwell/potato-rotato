@@ -13,11 +13,16 @@ interface XivApiActionIndirection {
 	ClassJobTargetID: number | '-1'
 }
 
-const actionIndirectionData = fetchXivapi(
-	'ActionIndirection?limit=500&columns=Name,ClassJobTargetID',
-).then((json: XivApiListing<XivApiActionIndirection>) => {
+interface XivApiAction {
+	ID: number
+	ClassJobLevel: number
+}
+
+async function fetchActionIndirection() {
+	const json = await fetchXivapi<XivApiListing<XivApiActionIndirection>>(
+		'ActionIndirection?limit=500&columns=Name,ClassJobTargetID',
+	)
 	const hide = new Set<number>()
-	// TODO: We're filtering later anyway, do we need this as a map?
 	const extras = new Map<number, XivApiAction[]>()
 
 	for (const {ClassJobTargetID: job, Name: action} of json.Results) {
@@ -35,16 +40,14 @@ const actionIndirectionData = fetchXivapi(
 	}
 
 	return {hide, extras}
-})
-
-interface XivApiAction {
-	ID: number
-	ClassJobLevel: number
 }
 
-export async function fetchRegularCategories(
-	job: Job,
-): Promise<ActionCategory[]> {
+let indirectionCache: ReturnType<typeof fetchActionIndirection> | undefined
+async function fetchActions(job: Job) {
+	if (indirectionCache == null) {
+		indirectionCache = fetchActionIndirection()
+	}
+
 	const filters = [
 		// ARR jobs use skills from their parent job
 		`ClassJobTargetID|=${job.id};${job.parentId}`,
@@ -58,7 +61,7 @@ export async function fetchRegularCategories(
 		fetchXivapi<XivApiListing<XivApiAction>>(
 			`search?indexes=action&filters=${filters}&columns=ID,ClassJobLevel`,
 		),
-		actionIndirectionData,
+		indirectionCache,
 	])
 
 	const actions: XivApiAction[] = [
@@ -72,11 +75,14 @@ export async function fetchRegularCategories(
 
 	// TODO: Pet?
 
-	// TODO: Split GCD/OGCD
-	return [
-		{
-			name: 'Actions',
-			actions: actions.map(action => ({id: action.ID})),
-		},
-	]
+	// TODO: Split GCD/OGCD?
+
+	return actions.map(action => ({id: action.ID}))
+}
+
+export function getRegularCategory(job: Job): ActionCategory {
+	return {
+		name: 'Actions',
+		fetchActions: () => fetchActions(job),
+	}
 }

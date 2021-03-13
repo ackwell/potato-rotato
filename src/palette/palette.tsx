@@ -6,22 +6,26 @@ import {
 	AccordionPanel,
 } from '@reach/accordion'
 import cx from 'classnames'
-import {useAtom} from 'jotai'
-import {useEffect, useState} from 'react'
+import {atom, useAtom} from 'jotai'
+import {SetStateAction} from 'jotai/core/types'
+import {useEffect, useRef, useState} from 'react'
 import {
 	ActionItem,
+	Bucket,
 	Draggable,
 	getDraggableItem,
+	Item,
 	ItemType,
-	paletteAtom,
 } from '../state'
+import {itemsAtom} from '../state'
 import {Container, ContainerHeader, Heading} from '../ui'
 import {
+	Action,
 	ActionCategory,
-	fetchBozjaCategories,
-	fetchPvpCategories,
-	fetchRegularCategories,
-	fetchRoleCategories,
+	getBozjaCategory,
+	getPvpCategory,
+	getRegularCategory,
+	getRoleCategory,
 } from './category'
 import {PaletteItemView} from './item'
 import {Job, JobSelect} from './jobSelect'
@@ -29,12 +33,22 @@ import styles from './palette.module.css'
 
 import '@reach/accordion/styles.css'
 
+const paletteAtom = atom(
+	get => get(itemsAtom)[Bucket.PALETTE],
+	(get, set, update: SetStateAction<Draggable<Item>[]>) => {
+		set(itemsAtom, items => ({
+			...items,
+			[Bucket.PALETTE]:
+				typeof update === 'function' ? update(items[Bucket.PALETTE]) : update,
+		}))
+	},
+)
+
 export function Palette() {
 	const [job, setJob] = useState<Job>()
 	const [categories, setCategories] = useState<ActionCategory[]>([])
-	const [palette, setPalette] = useAtom(paletteAtom)
 
-	const [open, setOpen] = useState<number[]>([])
+	const [open, setOpen] = useState<number[]>([0, 1])
 	const toggleOpenIndex = (index: number) =>
 		setOpen(open =>
 			open.includes(index)
@@ -48,29 +62,13 @@ export function Palette() {
 			return
 		}
 
-		setCategories([])
-		setPalette([])
-
-		// TODO: Opt-in for all but regular, and make their requests lazy.
-		// TODO: Categories
-		// - Items / general actions
-		Promise.all([
-			fetchRegularCategories(job),
-			fetchRoleCategories(job),
-			fetchPvpCategories(job),
-			fetchBozjaCategories(job),
-		]).then(categoryGroups => {
-			const categories = categoryGroups.flat()
-			setCategories(categories)
-			setPalette(
-				categories.flatMap(category =>
-					category.actions.map(action =>
-						getDraggableItem({type: ItemType.ACTION, action: action.id}),
-					),
-				),
-			)
-		})
-	}, [job, setPalette])
+		setCategories([
+			getRegularCategory(job),
+			getRoleCategory(job),
+			getPvpCategory(job),
+			getBozjaCategory(job),
+		])
+	}, [job])
 
 	return (
 		<>
@@ -81,35 +79,84 @@ export function Palette() {
 			<Container>
 				<Accordion index={open} onChange={toggleOpenIndex}>
 					{categories.map((category, index) => (
-						<AccordionItem key={index} className={styles.item}>
-							<Heading level={3}>
-								<AccordionButton
-									className={cx(
-										styles.button,
-										open.includes(index) && styles.expanded,
-									)}
-								>
-									{category.name}
-								</AccordionButton>
-							</Heading>
-							<AccordionPanel className={styles.panel}>
-								{category.actions.map(action => {
-									// TODO: I guess I could memo an id map for this
-									const item = palette.find(
-										(item): item is Draggable<ActionItem> =>
-											item.type === ItemType.ACTION &&
-											item.action === action.id,
-									)
-									return (
-										item && <DraggableItemView key={item.key} item={item} />
-									)
-								})}
-							</AccordionPanel>
-						</AccordionItem>
+						<PaletteGroup
+							key={index}
+							category={category}
+							open={open.includes(index)}
+						/>
 					))}
 				</Accordion>
 			</Container>
 		</>
+	)
+}
+
+interface PaletteGroupProps {
+	category: ActionCategory
+	open: boolean
+}
+
+function PaletteGroup({category, open}: PaletteGroupProps) {
+	// Using ref for local actions, relying on palette to trigger rerender
+	const [palette, setPalette] = useAtom(paletteAtom)
+	const actions = useRef<Action[]>()
+
+	useEffect(() => {
+		// If the group is closed, or already has data, noop
+		if (!open || actions.current != null) {
+			return
+		}
+
+		// Track if this effect has already been cleaned up so we don't leak
+		let cleaned = false
+
+		category.fetchActions().then(fetchedActions => {
+			if (cleaned) {
+				return
+			}
+
+			// Set the current actions, merge into the end of the palette
+			actions.current = fetchedActions
+			setPalette(palette => [
+				...palette,
+				...fetchedActions.map(action =>
+					getDraggableItem({type: ItemType.ACTION, action: action.id}),
+				),
+			])
+		})
+
+		return () => {
+			// Mark as cleaned, filter out actions from the pallete and clean ref
+			cleaned = true
+			setPalette(palette => [
+				...palette.filter(
+					item =>
+						item.type !== ItemType.ACTION ||
+						!(actions.current ?? []).some(action => action.id === item.action),
+				),
+			])
+			actions.current = undefined
+		}
+	}, [open, actions, category, setPalette])
+
+	return (
+		<AccordionItem className={styles.item}>
+			<Heading level={3}>
+				<AccordionButton className={cx(styles.button, open && styles.expanded)}>
+					{category.name}
+				</AccordionButton>
+			</Heading>
+			<AccordionPanel className={styles.panel}>
+				{actions.current == null && 'Loading'}
+				{actions.current?.map(action => {
+					const item = palette.find(
+						(item): item is Draggable<ActionItem> =>
+							item.type === ItemType.ACTION && item.action === action.id,
+					)
+					return item && <DraggableItemView key={item.key} item={item} />
+				})}
+			</AccordionPanel>
+		</AccordionItem>
 	)
 }
 

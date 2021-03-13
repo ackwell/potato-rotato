@@ -33,6 +33,7 @@ function ActionItemView({item, overlay, sortable}: ItemViewProps<ActionItem>) {
 	return (
 		<SortableWrapper
 			sortable={sortable}
+			// TODO: We need the gcd padding when dragging from rotation, but not when dragging from palette.
 			className={cx(styles.item, action?.onGcd && !overlay && styles.onGcd)}
 		>
 			<ActionIcon action={action} />

@@ -4,5 +4,5 @@ export interface Action {
 
 export interface ActionCategory {
 	name: string
-	actions: Action[]
+	fetchActions: () => Promise<Action[]>
 }

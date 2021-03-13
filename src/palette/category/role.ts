@@ -7,7 +7,7 @@ interface XivApiAction {
 	ClassJobLevel: number
 }
 
-export async function fetchRoleCategories(job: Job): Promise<ActionCategory[]> {
+async function fetchActions(job: Job) {
 	const filters = [
 		`ClassJobCategory.${job.classJobCategoryKey}=1`,
 		'IsRoleAction=1',
@@ -18,12 +18,14 @@ export async function fetchRoleCategories(job: Job): Promise<ActionCategory[]> {
 		`search?indexes=action&filters=${filters}`,
 	)
 
-	return [
-		{
-			name: 'Role Actions',
-			actions: Results.sort(
-				(a, b) => a.ClassJobLevel - b.ClassJobLevel,
-			).map(action => ({id: action.ID})),
-		},
-	]
+	return Results.sort(
+		(a, b) => a.ClassJobLevel - b.ClassJobLevel,
+	).map(action => ({id: action.ID}))
+}
+
+export function getRoleCategory(job: Job): ActionCategory {
+	return {
+		name: 'Role Actions',
+		fetchActions: () => fetchActions(job),
+	}
 }
