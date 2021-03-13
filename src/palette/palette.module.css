@@ -5,11 +5,27 @@
 .button {
 	/* Hopefully people have not-ancient browsers */
 	all: inherit;
+	cursor: pointer;
+	width: 100%;
+}
+
+.button::after {
+	content: '';
+	position: relative;
+	left: 0.5rem;
+	display: inline-block;
+	border: 0.5rem solid transparent;
+	border-left: 1rem solid currentColor;
+	border-right-width: 0;
+	transition: transform 0.1s ease;
 }
 
 .button.expanded {
 	padding-bottom: 1rem;
-	color: red;
+}
+
+.button.expanded::after {
+	transform: rotate(90deg);
 }
 
 .panel {
