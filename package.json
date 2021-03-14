@@ -17,6 +17,7 @@
 		"@fortawesome/free-brands-svg-icons": "^5.15.2",
 		"@fortawesome/react-fontawesome": "^0.1.14",
 		"@reach/accordion": "^0.13.2",
+		"@reach/tooltip": "^0.13.2",
 		"@xivanalysis/tooltips": "^0.1.4",
 		"byte-base64": "^1.1.0",
 		"classnames": "^2.2.6",

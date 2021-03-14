@@ -15,7 +15,7 @@ async function fetchActions(job: Job) {
 	].join(',')
 
 	const {Results} = await fetchXivapi<XivApiListing<XivApiAction>>(
-		`search?indexes=action&filters=${filters}`,
+		`search?indexes=action&filters=${filters}&columns=ID,ClassJobLevel`,
 	)
 
 	return Results.sort(

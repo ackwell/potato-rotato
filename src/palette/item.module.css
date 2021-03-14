@@ -1,0 +1,22 @@
+.tooltipWrapper[data-reach-tooltip] {
+	/* Reach has a bunch of defaults that we just don't care about tbqh */
+	box-shadow: none;
+	border: none;
+	padding: 0;
+	background: none;
+	white-space: normal;
+}
+
+.info {
+	display: flex;
+	align-items: center;
+}
+
+.name {
+	margin-left: 1rem;
+	font-size: 1.75rem;
+	line-height: 3rem;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}

@@ -170,14 +170,9 @@ function DraggableItemView({item}: DraggableItemViewProps) {
 	})
 
 	// todo might be able to avoid the wrapper. consider.
-	// todo merge all item views back together again i guess
+	// todo merge all item views back together again i guess?
 	return (
-		<div
-			ref={setNodeRef}
-			{...attributes}
-			{...listeners}
-			style={{display: 'inline-block'}}
-		>
+		<div ref={setNodeRef} {...attributes} {...listeners}>
 			<PaletteItemView item={item} />
 		</div>
 	)
