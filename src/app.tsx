@@ -65,18 +65,12 @@ export function App() {
 
 		// Finalising a bin action, remove the ID from the family
 		if (over == null) {
-			console.log('removing', active.id)
 			itemFamily.remove(active.id)
 			return
 		}
 
-		// TODO: handle bin
-		if (!inRotation(over.id)) {
-			return
-		}
-
 		// If we're over rotation, but not in it already, dragover failed
-		if (!inRotation(active.id)) {
+		if (!inRotation(over.id) || !inRotation(active.id)) {
 			throw new Error(`Invariant: Rotation desync, ${active.id} missing."`)
 		}
 

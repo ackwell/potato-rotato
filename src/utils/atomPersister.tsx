@@ -8,18 +8,12 @@ export interface AtomUrlPersisterProps {
 export function AtomUrlPersister({atom}: AtomUrlPersisterProps) {
 	const [serialised, hydrate] = useAtom(atom)
 	// Updating the hash to persist will also trip the hashchange event. To avoid propagating the thrash into the hydrating atom, we track updates and ignore events resulting from one.
-	// TODO: this seems to be double tapping on initial render
-	const thrashing = useRef(false)
+	const knownHash = useRef<string>()
 
 	// URL -> State
 	const onHashChange = useCallback(() => {
-		if (thrashing.current) {
-			thrashing.current = false
-			return
-		}
-
 		const hash = window.location.hash.replace(/^#/, '')
-		if (hash === '') {
+		if (hash === '' || knownHash.current === hash) {
 			return
 		}
 
@@ -34,7 +28,7 @@ export function AtomUrlPersister({atom}: AtomUrlPersisterProps) {
 
 	// State -> URL
 	useEffect(() => {
-		thrashing.current = true
+		knownHash.current = serialised
 		window.location.hash = serialised
 	}, [serialised])
 
