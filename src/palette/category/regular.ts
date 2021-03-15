@@ -1,6 +1,7 @@
+import {ItemType} from '../../state'
 import {fetchXivapi, XivApiListing} from '../../xivapi'
 import {Job} from '../jobSelect'
-import {ActionCategory} from './base'
+import {Category} from './base'
 
 // The ActionIndirection sheet provides overrides for Action.ClassJob, seemingly used to
 // adjust what's displayed in the Actions & Traits menu. It's a tiny sheet, eagerly fetch
@@ -77,12 +78,12 @@ async function fetchActions(job: Job) {
 
 	// TODO: Split GCD/OGCD?
 
-	return actions.map(action => ({id: action.ID}))
+	return actions.map(action => ({type: ItemType.ACTION, action: action.ID}))
 }
 
-export function getRegularCategory(job: Job): ActionCategory {
+export function getRegularCategory(job: Job): Category {
 	return {
 		name: 'Actions',
-		fetchActions: () => fetchActions(job),
+		fetchItems: () => fetchActions(job),
 	}
 }

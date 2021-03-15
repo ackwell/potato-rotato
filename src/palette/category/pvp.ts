@@ -1,6 +1,6 @@
 import {fetchXivapi, XivApiListing} from '../../xivapi'
 import {Job} from '../jobSelect'
-import {Action, ActionCategory} from './base'
+import {Action, Category, actionToItem} from './base'
 
 // PvPActionSort provides the sorting used in the pvp actions window, useful as all
 // pvp actions have no class job level to sort off. In addition, entries not found
@@ -80,12 +80,12 @@ async function fetchActions(job: Job) {
 
 	const {jobGroups} = await dataCache
 
-	return jobGroups.get(job.classJobCategoryKey) ?? []
+	return jobGroups.get(job.classJobCategoryKey)?.map(actionToItem) ?? []
 }
 
-export function getPvpCategory(job: Job): ActionCategory {
+export function getPvpCategory(job: Job): Category {
 	return {
 		name: 'PvP Actions',
-		fetchActions: () => fetchActions(job),
+		fetchItems: () => fetchActions(job),
 	}
 }

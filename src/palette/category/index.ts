@@ -1,5 +1,6 @@
-export type {Action, ActionCategory} from './base'
+export type {Action, Category} from './base'
 export {getBozjaCategory} from './bozja'
 export {getPvpCategory} from './pvp'
 export {getRegularCategory} from './regular'
 export {getRoleCategory} from './role'
+export {utilityCategory} from './utilities'

@@ -1,8 +1,15 @@
+import {ActionItem, Item, ItemType} from '../../state'
+
 export interface Action {
 	id: number
 }
 
-export interface ActionCategory {
+export interface Category {
 	name: string
-	fetchActions: () => Promise<Action[]>
+	fetchItems: () => Promise<Item[]>
 }
+
+export const actionToItem = (action: Action): ActionItem => ({
+	type: ItemType.ACTION,
+	action: action.id,
+})

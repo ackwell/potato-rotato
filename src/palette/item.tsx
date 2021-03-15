@@ -2,17 +2,26 @@ import Tooltip from '@reach/tooltip'
 import {TooltipDetail} from '@xivanalysis/tooltips'
 import {forwardRef, ReactNode} from 'react'
 import {useActionData} from '../data'
-import {ActionItem} from '../state'
+import {ActionItem, Item, ItemType} from '../state'
 import {ActionIcon} from '../ui'
 import styles from './item.module.css'
 
 import '@reach/tooltip/styles.css'
 
 export interface PaletteItemViewProps {
-	item: ActionItem
+	item: Item
 }
 
 export function PaletteItemView({item}: PaletteItemViewProps) {
+	switch (item.type) {
+		case ItemType.ACTION:
+			return <ActionItemView item={item} />
+		default:
+			return <div>UNK:{ItemType[item.type]}</div>
+	}
+}
+
+export function ActionItemView({item}: {item: ActionItem}) {
 	const action = useActionData(item.action)
 	return (
 		<Tooltip

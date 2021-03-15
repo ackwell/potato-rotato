@@ -1,6 +1,7 @@
+import {ItemType} from '../../state'
 import {fetchXivapi, XivApiListing} from '../../xivapi'
 import {Job} from '../jobSelect'
-import {ActionCategory} from './base'
+import {Category} from './base'
 
 interface XivApiAction {
 	ID: number
@@ -20,12 +21,12 @@ async function fetchActions(job: Job) {
 
 	return Results.sort(
 		(a, b) => a.ClassJobLevel - b.ClassJobLevel,
-	).map(action => ({id: action.ID}))
+	).map(action => ({type: ItemType.ACTION, action: action.ID}))
 }
 
-export function getRoleCategory(job: Job): ActionCategory {
+export function getRoleCategory(job: Job): Category {
 	return {
 		name: 'Role Actions',
-		fetchActions: () => fetchActions(job),
+		fetchItems: () => fetchActions(job),
 	}
 }

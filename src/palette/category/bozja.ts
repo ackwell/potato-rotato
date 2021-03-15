@@ -1,6 +1,6 @@
 import {fetchXivapi, XivApiListing} from '../../xivapi'
 import {Job} from '../jobSelect'
-import {Action, ActionCategory} from './base'
+import {Action, Category, actionToItem} from './base'
 
 // MYCTemporaryItem contains all the data for "Lost" items and actions available in Save The Queen areas
 interface XivApiMYCTemporaryItem {
@@ -58,12 +58,12 @@ async function fetchActions(job: Job) {
 
 	const {jobGroups} = await dataCache
 
-	return jobGroups.get(job.classJobCategoryKey) ?? []
+	return jobGroups.get(job.classJobCategoryKey)?.map(actionToItem) ?? []
 }
 
-export function getBozjaCategory(job: Job): ActionCategory {
+export function getBozjaCategory(job: Job): Category {
 	return {
 		name: 'Lost Actions',
-		fetchActions: () => fetchActions(job),
+		fetchItems: () => fetchActions(job),
 	}
 }

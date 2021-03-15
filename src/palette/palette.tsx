@@ -8,14 +8,15 @@ import {
 import cx from 'classnames'
 import {useUpdateAtom} from 'jotai/utils'
 import {ReactNode, useEffect, useMemo, useRef, useState} from 'react'
-import {ActionItem, getDraggableId, Item, itemFamily, ItemType} from '../state'
+import {getDraggableId, Item, itemFamily} from '../state'
 import {Container, ContainerHeader, Heading} from '../ui'
 import {
-	ActionCategory,
+	Category,
 	getBozjaCategory,
 	getPvpCategory,
 	getRegularCategory,
 	getRoleCategory,
+	utilityCategory,
 } from './category'
 import {PaletteItemView} from './item'
 import {Job, JobSelect} from './jobSelect'
@@ -32,12 +33,13 @@ export function Palette() {
 			: [
 					getRegularCategory(job),
 					getRoleCategory(job),
+					utilityCategory,
 					getPvpCategory(job),
 					getBozjaCategory(job),
 			  ]
 	}, [job])
 
-	const [open, setOpen] = useState<number[]>([0, 1])
+	const [open, setOpen] = useState<number[]>([0, 1, 2])
 	const toggleOpenIndex = (index: number) =>
 		setOpen(open =>
 			open.includes(index)
@@ -98,7 +100,7 @@ function AccordionGroup({name, children, open}: AccordionGroupProps) {
 }
 
 interface GroupContentProps {
-	category: ActionCategory
+	category: Category
 }
 
 function GroupContent({category}: GroupContentProps) {
@@ -107,16 +109,11 @@ function GroupContent({category}: GroupContentProps) {
 	useEffect(() => {
 		let stale = false
 
-		category.fetchActions().then(fetchedActions => {
+		category.fetchItems().then(fetchedActions => {
 			if (stale) {
 				return
 			}
-			setItems(
-				fetchedActions.map(action => ({
-					type: ItemType.ACTION,
-					action: action.id,
-				})),
-			)
+			setItems(fetchedActions)
 		})
 
 		return () => {
@@ -166,7 +163,7 @@ function DraggableItemView({item}: DraggableItemViewProps) {
 	// todo merge all item views back together again i guess?
 	return (
 		<div ref={setNodeRef} {...attributes} {...listeners}>
-			<PaletteItemView item={item as ActionItem} />
+			<PaletteItemView item={item} />
 		</div>
 	)
 }
