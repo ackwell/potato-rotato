@@ -13,48 +13,24 @@ export type ActionItem = {type: ItemType.ACTION; action: number}
 export type PullItem = {type: ItemType.PULL}
 export type Item = ActionItem | PullItem
 
-export type Draggable<I extends Item> = I & {key: string}
-
-export enum Bucket {
-	ROTATION = 'ROTATION',
-	PALETTE = 'PALETTE',
-	BIN = 'BIN',
-}
-
 // thanks i hate it
 let nextDraggableId = 0
-export const getDraggableKey = () => `${nextDraggableId++}`
-
-export const getDraggableItem = (item: Item): Draggable<Item> => ({
-	...item,
-	key: getDraggableKey(),
-})
+export const getDraggableId = () => `${nextDraggableId++}`
 
 export const rotationAtom = atom<string[]>([])
 
-// TODO this hsould be a context
+// TODO: Should this be on a context or atom of some kind? Global mutable is pretty icky.
 export const idMap = new Map<string, Item>()
-
-// TODO: should we store items by keys separate to the keys in the draggable data, or keep them merged? consider.
-// export type Items = Record<Bucket, Draggable<Item>[]>
-// export const itemsAtom = atom<Items>({
-// 	[Bucket.ROTATION]: [],
-// 	[Bucket.PALETTE]: [],
-// 	[Bucket.BIN]: [],
-// })
 
 export const serialisedRotationAtom = atom(
 	get => {
-		// Run the gauntlet of SMOL
-		// TODO: is msgpack worth the 8kb of lib code on top of the mandatory 13kb of pako?
-		// const rotation = get(itemsAtom)[Bucket.ROTATION]
+		// Turn the rotation into a list of items - IDs are only relevant to a single runtime
 		const rotation = get(rotationAtom)
 			.map(id => idMap.get(id))
 			.filter(exists)
-		// const strippedKeys = rotation.map(item => ({
-		// 	...item,
-		// 	key: undefined,
-		// }))
+
+		// Run the gauntlet of SMOL
+		// TODO: is msgpack worth the 8kb of lib code on top of the mandatory 13kb of pako?
 		const bin = msgpack.encode(rotation)
 		const deflate = pako.deflateRaw(bin)
 		const b64 = bytesToBase64(deflate)
@@ -67,17 +43,13 @@ export const serialisedRotationAtom = atom(
 		const bin = pako.inflateRaw(deflate)
 		const newRotation = msgpack.decode(bin) as Item[]
 
-		// this is pretty disgusting ngl
+		// Create IDs for the items in the rotation, and assign them into the map
 		const ids = newRotation.map(item => {
-			const id = getDraggableKey()
+			const id = getDraggableId()
 			idMap.set(id, item)
 			return id
 		})
 
-		// set(itemsAtom, items => ({
-		// 	...items,
-		// 	[Bucket.ROTATION]: newRotation.map(getDraggableItem),
-		// }))
 		set(rotationAtom, ids)
 	},
 )

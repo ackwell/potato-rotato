@@ -6,24 +6,10 @@ import {
 	AccordionPanel,
 } from '@reach/accordion'
 import cx from 'classnames'
-import {atom, useAtom} from 'jotai'
-import {SetStateAction} from 'jotai/core/types'
-import {useEffect, useLayoutEffect, useRef, useState} from 'react'
-import {
-	ActionItem,
-	Bucket,
-	Draggable,
-	getDraggableItem,
-	getDraggableKey,
-	idMap,
-	Item,
-	ItemType,
-	rotationAtom,
-} from '../state'
-// import {itemsAtom} from '../state'
+import {useEffect, useMemo, useState} from 'react'
+import {ActionItem, getDraggableId, idMap, Item, ItemType} from '../state'
 import {Container, ContainerHeader, Heading} from '../ui'
 import {
-	Action,
 	ActionCategory,
 	getBozjaCategory,
 	getPvpCategory,
@@ -36,20 +22,19 @@ import styles from './palette.module.css'
 
 import '@reach/accordion/styles.css'
 
-// const paletteAtom = atom(
-// 	get => get(itemsAtom)[Bucket.PALETTE],
-// 	(get, set, update: SetStateAction<Draggable<Item>[]>) => {
-// 		set(itemsAtom, items => ({
-// 			...items,
-// 			[Bucket.PALETTE]:
-// 				typeof update === 'function' ? update(items[Bucket.PALETTE]) : update,
-// 		}))
-// 	},
-// )
-
 export function Palette() {
 	const [job, setJob] = useState<Job>()
-	const [categories, setCategories] = useState<ActionCategory[]>([])
+
+	const categories = useMemo(() => {
+		return job == null
+			? []
+			: [
+					getRegularCategory(job),
+					getRoleCategory(job),
+					getPvpCategory(job),
+					getBozjaCategory(job),
+			  ]
+	}, [job])
 
 	const [open, setOpen] = useState<number[]>([0, 1])
 	const toggleOpenIndex = (index: number) =>
@@ -59,20 +44,6 @@ export function Palette() {
 				: [...open, index],
 		)
 
-	// When job is updated, fetch & categorise actions for the new selection
-	useEffect(() => {
-		if (job == null) {
-			return
-		}
-
-		setCategories([
-			getRegularCategory(job),
-			getRoleCategory(job),
-			getPvpCategory(job),
-			getBozjaCategory(job),
-		])
-	}, [job])
-
 	return (
 		<>
 			<ContainerHeader>
@@ -81,87 +52,26 @@ export function Palette() {
 			</ContainerHeader>
 			<Container>
 				<Accordion index={open} onChange={toggleOpenIndex}>
-					{categories.map((category, index) => (
-						<PaletteGroup
-							key={index}
-							category={category}
-							open={open.includes(index)}
-						/>
-					))}
+					{categories.map((category, index) => {
+						const isOpen = open.includes(index)
+						return (
+							<AccordionItem className={styles.item}>
+								<Heading level={3}>
+									<AccordionButton
+										className={cx(styles.button, isOpen && styles.expanded)}
+									>
+										{category.name}
+									</AccordionButton>
+								</Heading>
+								<AccordionPanel className={styles.panel}>
+									{isOpen && <GroupContent category={category} />}
+								</AccordionPanel>
+							</AccordionItem>
+						)
+					})}
 				</Accordion>
 			</Container>
 		</>
-	)
-}
-
-interface PaletteGroupProps {
-	category: ActionCategory
-	open: boolean
-}
-
-function PaletteGroup({category, open}: PaletteGroupProps) {
-	// // Using ref for local actions, relying on palette to trigger rerender
-	// const [palette, setPalette] = useAtom(paletteAtom)
-	// const actions = useRef<Action[]>()
-
-	// useEffect(() => {
-	// 	// If the group is closed, or already has data, noop
-	// 	if (!open || actions.current != null) {
-	// 		return
-	// 	}
-
-	// 	// Track if this effect has already been cleaned up so we don't leak
-	// 	let cleaned = false
-
-	// 	category.fetchActions().then(fetchedActions => {
-	// 		if (cleaned) {
-	// 			return
-	// 		}
-
-	// 		// Set the current actions, merge into the end of the palette
-	// 		actions.current = fetchedActions
-	// 		setPalette(palette => [
-	// 			...palette,
-	// 			...fetchedActions.map(action =>
-	// 				getDraggableItem({type: ItemType.ACTION, action: action.id}),
-	// 			),
-	// 		])
-	// 	})
-
-	// 	return () => {
-	// 		// Mark as cleaned, filter out actions from the pallete and clean ref
-	// 		cleaned = true
-	// 		setPalette(palette => [
-	// 			...palette.filter(
-	// 				item =>
-	// 					item.type !== ItemType.ACTION ||
-	// 					!(actions.current ?? []).some(action => action.id === item.action),
-	// 			),
-	// 		])
-	// 		actions.current = undefined
-	// 	}
-	// }, [open, actions, category, setPalette])
-
-	return (
-		<AccordionItem className={styles.item}>
-			<Heading level={3}>
-				<AccordionButton className={cx(styles.button, open && styles.expanded)}>
-					{category.name}
-				</AccordionButton>
-			</Heading>
-			<AccordionPanel className={styles.panel}>
-				{/* {actions.current == null && 'Loading'}
-				{actions.current?.map(action => {
-					// const item = palette.find(
-					// 	(item): item is Draggable<ActionItem> =>
-					// 		item.type === ItemType.ACTION && item.action === action.id,
-					// )
-					// return item && <DraggableItemView key={item.key} item={item} />
-					return null
-				})} */}
-				{open && <GroupContent category={category} />}
-			</AccordionPanel>
-		</AccordionItem>
 	)
 }
 
@@ -170,7 +80,7 @@ interface GroupContentProps {
 }
 
 function GroupContent({category}: GroupContentProps) {
-	const [actions, setActions] = useState<Action[]>()
+	const [items, setItems] = useState<Item[]>()
 
 	useEffect(() => {
 		let stale = false
@@ -179,7 +89,12 @@ function GroupContent({category}: GroupContentProps) {
 			if (stale) {
 				return
 			}
-			setActions(fetchedActions)
+			setItems(
+				fetchedActions.map(action => ({
+					type: ItemType.ACTION,
+					action: action.id,
+				})),
+			)
 		})
 
 		return () => {
@@ -189,46 +104,33 @@ function GroupContent({category}: GroupContentProps) {
 
 	return (
 		<>
-			{actions == null && 'Loading'}
-			{actions?.map(action => (
-				<DraggableItemView item={{type: ItemType.ACTION, action: action.id}} />
+			{items == null && 'Loading'}
+			{items?.map(item => (
+				<DraggableItemView item={item} />
 			))}
 		</>
 	)
 }
 
-// TODO rename
 interface DraggableItemViewProps {
-	// item: Draggable<ActionItem>
-
 	item: Item
 }
 
-// function DraggableItemView({item}: DraggableItemViewProps) {
 function DraggableItemView({item}: DraggableItemViewProps) {
-	const [key, setKey] = useState(() => getDraggableKey())
-	const {setNodeRef, attributes, listeners, isDragging} = useDraggable({
-		id: key,
-	})
+	const [id, setId] = useState(() => getDraggableId())
+	const {setNodeRef, attributes, listeners, isDragging} = useDraggable({id})
 
-	// effect or something? kill me
-	idMap.set(key, item)
+	// Ensure the idMap always has an up-to-date reference to the item for this id
+	useEffect(() => {
+		idMap.set(id, item)
+	}, [id, item])
 
-	// if the fuckign rotation has the fucking key in it then reallocate or some bullshit idk just fuking work thanks
-	// THIS FAILS, AS IT CAUSES DRAGGABLE TO CHANGE ID _AFTER_ THE ROTATION IS UPDATES, WHICH NUKES THE DRAGGABLE ID->NODE CONNECTION
-	// const [rotation] = useAtom(rotationAtom)
-	// useEffect(() => {
-	// 	if (!rotation.includes(key)) {
-	// 		return
-	// 	}
-	// 	console.log('REGEN')
-	// 	setKey(getDraggableKey())
-	// }, [key, rotation])
+	// Whenever we start dragging, we need to generate a new id in the place of the dragged item
 	useEffect(() => {
 		if (!isDragging) {
 			return
 		}
-		setKey(getDraggableKey())
+		setId(getDraggableId())
 	}, [isDragging])
 
 	// todo might be able to avoid the wrapper. consider.

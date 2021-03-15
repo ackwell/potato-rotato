@@ -1,24 +1,17 @@
 import {useDroppable} from '@dnd-kit/core'
 import {SortableContext, useSortable} from '@dnd-kit/sortable'
 import {useAtom} from 'jotai'
-import {Bucket, Draggable, idMap, Item, rotationAtom} from '../state'
+import {idMap, Item, rotationAtom} from '../state'
 import {Heading, Container, ContainerHeader} from '../ui'
 import {RotationItemView} from './item'
 import styles from './rotation.module.css'
 
-export interface RotationProps {
-	// items: Draggable<Item>[]
-}
+export const ROTATION_ID = 'ROTATION'
 
-// export function Rotation({items}: RotationProps) {
-export function Rotation({}: RotationProps) {
-	const {setNodeRef} = useDroppable({id: Bucket.ROTATION})
+export function Rotation() {
+	const {setNodeRef} = useDroppable({id: ROTATION_ID})
 
-	const [keys] = useAtom(rotationAtom)
-	// console.log(
-	// 	keys,
-	// 	keys.map(key => idMap.get(key)),
-	// )
+	const [ids] = useAtom(rotationAtom)
 
 	return (
 		<>
@@ -27,15 +20,10 @@ export function Rotation({}: RotationProps) {
 			</ContainerHeader>
 			<Container>
 				<div ref={setNodeRef} className={styles.rotation}>
-					{/* <SortableContext items={items.map(item => item.key)}>
-						{items.map(item => (
-							<SortableItemView key={item.key} item={item} />
-						))}
-					</SortableContext> */}
-					<SortableContext items={keys}>
-						{keys.map(key => {
-							const item = idMap.get(key)
-							return item && <SortableItemView key={key} id={key} item={item} />
+					<SortableContext items={ids}>
+						{ids.map(id => {
+							const item = idMap.get(id)
+							return item && <SortableItemView key={id} id={id} item={item} />
 						})}
 					</SortableContext>
 				</div>
@@ -45,7 +33,6 @@ export function Rotation({}: RotationProps) {
 }
 
 interface SortableItemViewProps {
-	// item: Draggable<Item>
 	id: string
 	item: Item
 }
