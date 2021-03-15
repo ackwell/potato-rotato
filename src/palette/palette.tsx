@@ -7,7 +7,7 @@ import {
 } from '@reach/accordion'
 import cx from 'classnames'
 import {useUpdateAtom} from 'jotai/utils'
-import {useEffect, useMemo, useState} from 'react'
+import {ReactNode, useEffect, useMemo, useRef, useState} from 'react'
 import {ActionItem, getDraggableId, Item, itemFamily, ItemType} from '../state'
 import {Container, ContainerHeader, Heading} from '../ui'
 import {
@@ -56,18 +56,14 @@ export function Palette() {
 					{categories.map((category, index) => {
 						const isOpen = open.includes(index)
 						return (
-							<AccordionItem className={styles.item}>
-								<Heading level={3}>
-									<AccordionButton
-										className={cx(styles.button, isOpen && styles.expanded)}
-									>
-										{category.name}
-									</AccordionButton>
-								</Heading>
-								<AccordionPanel className={styles.panel}>
-									{isOpen && <GroupContent category={category} />}
-								</AccordionPanel>
-							</AccordionItem>
+							<AccordionGroup
+								// Keying on job ID to ensure lazy handling is reset by the remount when swapping between jobs.
+								key={`${job?.id}-${index}`}
+								name={category.name}
+								open={isOpen}
+							>
+								<GroupContent category={category} />
+							</AccordionGroup>
 						)
 					})}
 				</Accordion>
@@ -76,12 +72,37 @@ export function Palette() {
 	)
 }
 
+interface AccordionGroupProps {
+	name: string
+	children?: ReactNode
+	open: boolean
+}
+
+function AccordionGroup({name, children, open}: AccordionGroupProps) {
+	// Track if this group has ever been open to avoid constantly remounting children when reopening
+	const lazyOpen = useRef(open)
+	lazyOpen.current = lazyOpen.current || open
+
+	return (
+		<AccordionItem className={styles.item}>
+			<Heading level={3}>
+				<AccordionButton className={cx(styles.button, open && styles.expanded)}>
+					{name}
+				</AccordionButton>
+			</Heading>
+			<AccordionPanel className={styles.panel}>
+				{lazyOpen.current && children}
+			</AccordionPanel>
+		</AccordionItem>
+	)
+}
+
 interface GroupContentProps {
 	category: ActionCategory
 }
 
 function GroupContent({category}: GroupContentProps) {
-	const [items, setItems] = useState<Item[]>()
+	const [items, setItems] = useState<Item[]>([])
 
 	useEffect(() => {
 		let stale = false
@@ -100,14 +121,15 @@ function GroupContent({category}: GroupContentProps) {
 
 		return () => {
 			stale = true
+			setItems([])
 		}
 	}, [category])
 
 	return (
 		<>
-			{items == null && 'Loading'}
-			{items?.map(item => (
-				<DraggableItemView item={item} />
+			{items.length === 0 && 'Loading'}
+			{items.map((item, index) => (
+				<DraggableItemView key={index} item={item} />
 			))}
 		</>
 	)
@@ -134,6 +156,11 @@ function DraggableItemView({item}: DraggableItemViewProps) {
 		}
 		setId(getDraggableId())
 	}, [isDragging])
+
+	// Keep a non-tripping ref to the current ID. When we unmount, clear out the current ID from the family
+	const idRef = useRef<string>('')
+	idRef.current = id
+	useEffect(() => () => itemFamily.remove(idRef.current), [])
 
 	// todo might be able to avoid the wrapper. consider.
 	// todo merge all item views back together again i guess?
