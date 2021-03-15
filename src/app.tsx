@@ -48,9 +48,12 @@ export function App() {
 	}
 
 	function onDragOver({active, over}: DragOverEvent) {
-		// Dragging rotation -> nothing, remove
-		if (inRotation(active.id) && over == null) {
-			setRotation(ids => ids.filter(id => id !== active.id))
+		// Dragging onto nothing - potentially a bin action, wait for end to clean up.
+		// NOTE: Removing from rotation here causes burn-a-core-on-a-5800x tier thrash.
+		// Likely caused by a temporary null state on newly added sortables.
+		// TODO: Look into resolving when it's not 1:21AM.
+		if (over == null) {
+			return
 		}
 
 		// If we're moving something into the rotation, merge it in at the intersection point
@@ -66,12 +69,13 @@ export function App() {
 		// Finalising a bin action, remove the ID from the family
 		if (over == null) {
 			itemFamily.remove(active.id)
+			setRotation(ids => ids.filter(id => id !== active.id))
 			return
 		}
 
 		// If we're over rotation, but not in it already, dragover failed
 		if (!inRotation(over.id) || !inRotation(active.id)) {
-			throw new Error(`Invariant: Rotation desync, ${active.id} missing."`)
+			throw new Error(`Invariant: Rotation desync, ${active.id} missing.`)
 		}
 
 		// Reorder the bucket to finalise the drag
