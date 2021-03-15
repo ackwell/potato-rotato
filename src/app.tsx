@@ -48,25 +48,25 @@ export function App() {
 	}
 
 	function onDragOver({active, over}: DragOverEvent) {
-		// Not over anything, don't need to act
-		if (over == null) {
-			return
+		// Dragging rotation -> nothing, remove
+		if (inRotation(active.id) && over == null) {
+			setRotation(ids => ids.filter(id => id !== active.id))
 		}
 
-		// TODO: Consider bin here - maybe bin if over == null?
 		// If we're moving something into the rotation, merge it in at the intersection point
-		if (!inRotation(active.id) && inRotation(over.id)) {
+		if (!inRotation(active.id) && over != null && inRotation(over.id)) {
 			// TODO: actually rect merge it for that smooth anim
-			setRotation(keys => [...keys, active.id])
+			setRotation(ids => [...ids, active.id])
 		}
 	}
 
 	function onDragEnd({active, over}: DragEndEvent) {
 		cleanUpDrag()
 
-		// Not over anything, don't need to act
+		// Finalising a bin action, remove the ID from the family
 		if (over == null) {
-			// TODO: over === null for palette is a bin-case, and should remove from idMap
+			console.log('removing', active.id)
+			itemFamily.remove(active.id)
 			return
 		}
 
