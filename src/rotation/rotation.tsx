@@ -1,7 +1,7 @@
 import {useDroppable} from '@dnd-kit/core'
 import {SortableContext, useSortable} from '@dnd-kit/sortable'
 import {useAtom} from 'jotai'
-import {idMap, Item, rotationAtom} from '../state'
+import {itemFamily, rotationAtom} from '../state'
 import {Heading, Container, ContainerHeader} from '../ui'
 import {RotationItemView} from './item'
 import styles from './rotation.module.css'
@@ -21,10 +21,9 @@ export function Rotation() {
 			<Container>
 				<div ref={setNodeRef} className={styles.rotation}>
 					<SortableContext items={ids}>
-						{ids.map(id => {
-							const item = idMap.get(id)
-							return item && <SortableItemView key={id} id={id} item={item} />
-						})}
+						{ids.map(id => (
+							<SortableItemView key={id} id={id} />
+						))}
 					</SortableContext>
 				</div>
 			</Container>
@@ -34,11 +33,17 @@ export function Rotation() {
 
 interface SortableItemViewProps {
 	id: string
-	item: Item
 }
 
-function SortableItemView({id, item}: SortableItemViewProps) {
+function SortableItemView({id}: SortableItemViewProps) {
+	const [item] = useAtom(itemFamily(id))
 	const sortable = useSortable({id})
+
+	if (item == null) {
+		throw new Error(
+			`Invariant: Could not obtain item data for rotation item with ID ${id}`,
+		)
+	}
 
 	return <RotationItemView item={item} sortable={sortable} />
 }

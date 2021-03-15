@@ -1,5 +1,6 @@
 import {bytesToBase64, base64ToBytes} from 'byte-base64'
 import {atom} from 'jotai'
+import {atomFamily} from 'jotai/utils'
 import msgpack from 'msgpack-lite'
 import pako from 'pako'
 import {exists} from './utils'
@@ -19,14 +20,16 @@ export const getDraggableId = () => `${nextDraggableId++}`
 
 export const rotationAtom = atom<string[]>([])
 
-// TODO: Should this be on a context or atom of some kind? Global mutable is pretty icky.
-export const idMap = new Map<string, Item>()
+// Family of items mapped to their current draggable ID
+export const itemFamily = atomFamily(
+	(id: string) => undefined as Item | undefined,
+)
 
 export const serialisedRotationAtom = atom(
 	get => {
 		// Turn the rotation into a list of items - IDs are only relevant to a single runtime
 		const rotation = get(rotationAtom)
-			.map(id => idMap.get(id))
+			.map(id => get(itemFamily(id)))
 			.filter(exists)
 
 		// Run the gauntlet of SMOL
@@ -46,7 +49,7 @@ export const serialisedRotationAtom = atom(
 		// Create IDs for the items in the rotation, and assign them into the map
 		const ids = newRotation.map(item => {
 			const id = getDraggableId()
-			idMap.set(id, item)
+			set(itemFamily(id), item)
 			return id
 		})
 

@@ -6,8 +6,9 @@ import {
 	AccordionPanel,
 } from '@reach/accordion'
 import cx from 'classnames'
+import {useUpdateAtom} from 'jotai/utils'
 import {useEffect, useMemo, useState} from 'react'
-import {ActionItem, getDraggableId, idMap, Item, ItemType} from '../state'
+import {ActionItem, getDraggableId, Item, itemFamily, ItemType} from '../state'
 import {Container, ContainerHeader, Heading} from '../ui'
 import {
 	ActionCategory,
@@ -119,11 +120,12 @@ interface DraggableItemViewProps {
 function DraggableItemView({item}: DraggableItemViewProps) {
 	const [id, setId] = useState(() => getDraggableId())
 	const {setNodeRef, attributes, listeners, isDragging} = useDraggable({id})
+	const updateItemFamily = useUpdateAtom(itemFamily(id))
 
 	// Ensure the idMap always has an up-to-date reference to the item for this id
 	useEffect(() => {
-		idMap.set(id, item)
-	}, [id, item])
+		updateItemFamily(item)
+	}, [updateItemFamily, item])
 
 	// Whenever we start dragging, we need to generate a new id in the place of the dragged item
 	useEffect(() => {

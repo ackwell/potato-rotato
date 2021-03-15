@@ -16,7 +16,7 @@ import {Header} from './header'
 import {Palette} from './palette'
 import {Rotation, RotationItemView} from './rotation'
 import {ROTATION_ID} from './rotation'
-import {idMap, rotationAtom, serialisedRotationAtom} from './state'
+import {itemFamily, rotationAtom, serialisedRotationAtom} from './state'
 import {Stack} from './ui'
 import {AtomUrlPersister} from './utils'
 
@@ -102,7 +102,7 @@ export function App() {
 		setRotationBackup(undefined)
 	}
 
-	const draggingItem = draggingId != null ? idMap.get(draggingId) : undefined
+	const [draggingItem] = useAtom(itemFamily(draggingId ?? 'NOTHING'))
 
 	return (
 		<>
