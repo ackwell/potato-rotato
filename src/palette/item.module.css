@@ -1,3 +1,5 @@
+@value themeBackground3 from '../theme.module.css';
+
 .tooltipWrapper[data-reach-tooltip] {
 	/* Reach has a bunch of defaults that we just don't care about tbqh */
 	box-shadow: none;
@@ -5,6 +7,15 @@
 	padding: 0;
 	background: none;
 	white-space: normal;
+}
+
+.pullIcon {
+	border-radius: 2rem;
+	width: 5rem;
+	height: 5rem;
+	background: themeBackground3;
+	line-height: 5rem;
+	text-align: center;
 }
 
 .info {
