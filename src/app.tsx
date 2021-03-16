@@ -13,9 +13,9 @@ import {arrayMove, sortableKeyboardCoordinates} from '@dnd-kit/sortable'
 import {useAtom} from 'jotai'
 import {useState} from 'react'
 import {Header} from './header'
+import {ItemView, View} from './item'
 import {Palette} from './palette'
-import {Rotation, RotationItemView} from './rotation'
-import {ROTATION_ID} from './rotation'
+import {Rotation, ROTATION_ID} from './rotation'
 import {itemFamily, rotationAtom, serialisedRotationAtom} from './state'
 import {Stack} from './ui'
 import {AtomUrlPersister} from './utils'
@@ -118,7 +118,7 @@ export function App() {
 				</Stack>
 				<DragOverlay>
 					{draggingItem != null && (
-						<RotationItemView overlay item={draggingItem} />
+						<ItemView item={draggingItem} view={View.OVERLAY} />
 					)}
 				</DragOverlay>
 			</DndContext>

@@ -3,9 +3,10 @@ import {SortableContext, useSortable} from '@dnd-kit/sortable'
 import {CSS} from '@dnd-kit/utilities'
 import cx from 'classnames'
 import {useAtom} from 'jotai'
+import {ItemView, View} from '../item'
+import {WrapperProps, WrapperContext} from '../item'
 import {itemFamily, rotationAtom} from '../state'
 import {Heading, Container, ContainerHeader} from '../ui'
-import {RotationItemView, WrapperProps, WrapperContext} from './item'
 import styles from './rotation.module.css'
 
 export const ROTATION_ID = 'ROTATION'
@@ -60,7 +61,7 @@ function SortableItemView({id}: SortableItemViewProps) {
 
 	return (
 		<WrapperContext.Provider value={wrapperProps}>
-			<RotationItemView item={item} />
+			<ItemView item={item} view={View.ROTATION} />
 		</WrapperContext.Provider>
 	)
 }

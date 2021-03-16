@@ -1,0 +1,9 @@
+/*
+This probably looks a bit backwards.
+The draggable lib pins all positioning at the top left, so if we neartly align across
+the bottom, you get nasty jumps when it tries to reconcile a top-left pin with a
+bottom-left alignment.
+*/
+.onGcd {
+	padding-top: 2rem;
+}
