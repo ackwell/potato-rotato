@@ -1,18 +1,13 @@
-import {useSortable} from '@dnd-kit/sortable'
-import {CSS} from '@dnd-kit/utilities'
 import cx from 'classnames'
-import {ReactNode} from 'react'
+import {createContext, ReactNode, useContext} from 'react'
 import {useActionData} from '../data'
 import {ActionItem, Item, ItemType, PullItem} from '../state'
 import {ActionIcon} from '../ui'
 import styles from './item.module.css'
 
-type SortableOptions = ReturnType<typeof useSortable>
-
 interface ItemViewProps<I extends Item> {
 	item: I
 	overlay?: boolean
-	sortable?: SortableOptions
 }
 
 export type RotationItemViewProps = ItemViewProps<Item>
@@ -28,11 +23,10 @@ export function RotationItemView(props: RotationItemViewProps) {
 	}
 }
 
-function ActionItemView({item, overlay, sortable}: ItemViewProps<ActionItem>) {
+function ActionItemView({item, overlay}: ItemViewProps<ActionItem>) {
 	const action = useActionData(item.action)
 	return (
 		<SortableWrapper
-			sortable={sortable}
 			// TODO: We need the gcd padding when dragging from rotation, but not when dragging from palette.
 			className={cx(styles.item, action?.onGcd && !overlay && styles.onGcd)}
 		>
@@ -41,17 +35,14 @@ function ActionItemView({item, overlay, sortable}: ItemViewProps<ActionItem>) {
 	)
 }
 
-function PullItemView({overlay, sortable}: ItemViewProps<PullItem>) {
+function PullItemView({overlay}: ItemViewProps<PullItem>) {
 	// The pull marker has a more-involved inline UI, we don't need a drag overlay for this one
 	if (overlay) {
 		return null
 	}
 
 	return (
-		<SortableWrapper
-			sortable={sortable}
-			className={cx(styles.item, styles.pull)}
-		>
+		<SortableWrapper className={cx(styles.item, styles.pull)}>
 			<span className={styles.pullText}>Pull</span>
 		</SortableWrapper>
 	)
@@ -59,37 +50,18 @@ function PullItemView({overlay, sortable}: ItemViewProps<PullItem>) {
 
 interface SortableWrapperProps {
 	children?: ReactNode
-	sortable?: SortableOptions
 	className?: string
 }
 
-function SortableWrapper({
-	children,
-	sortable,
-	className,
-}: SortableWrapperProps) {
-	let props: JSX.IntrinsicElements['div'] = {
-		className,
-	}
+export type WrapperProps = JSX.IntrinsicElements['div']
+export const WrapperContext = createContext<WrapperProps>({})
 
-	if (sortable != null) {
-		props = {
-			...props,
-			ref: sortable.setNodeRef,
-			style: {
-				...props.style,
-				transform: CSS.Translate.toString(sortable.transform),
-				transition: sortable.transition,
-			},
-			className: cx(
-				props.className,
-				styles.draggable,
-				sortable.isDragging && styles.dragging,
-			),
-			...sortable.attributes,
-			...sortable.listeners,
-		}
-	}
+function SortableWrapper({children, className}: SortableWrapperProps) {
+	const wrapperProps = useContext(WrapperContext)
 
-	return <div {...props}>{children}</div>
+	return (
+		<div {...wrapperProps} className={cx(className, wrapperProps.className)}>
+			{children}
+		</div>
+	)
 }

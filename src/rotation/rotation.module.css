@@ -8,3 +8,12 @@
 	/* should probably replace this with a placeholder "drop stuff here" */
 	min-height: 32px;
 }
+
+.draggable {
+	touch-action: none;
+	cursor: grab;
+}
+
+.dragging {
+	opacity: 0.5;
+}
