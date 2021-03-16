@@ -34,3 +34,8 @@
 	gap: 1rem;
 	line-height: 0;
 }
+
+.draggable {
+	touch-action: none;
+	cursor: grab;
+}

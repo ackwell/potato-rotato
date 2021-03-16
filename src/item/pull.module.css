@@ -2,7 +2,7 @@
 
 .pull {
 	font-family: sans-serif;
-	z-index: 0;
+	z-index: 0 !important;
 	display: flex;
 	align-items: center;
 	justify-content: center;

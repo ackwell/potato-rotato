@@ -7,3 +7,12 @@ bottom-left alignment.
 .onGcd {
 	padding-top: 2rem;
 }
+
+/* Reach has a bunch of defaults that we just don't care about tbqh */
+.tooltipWrapper[data-reach-tooltip] {
+	box-shadow: none;
+	border: none;
+	padding: 0;
+	background: none;
+	white-space: normal;
+}

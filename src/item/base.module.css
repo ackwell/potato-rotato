@@ -1,3 +1,23 @@
+.info {
+	display: flex;
+	align-items: center;
+}
+
+.infoName {
+	display: inline-block;
+	margin-left: 1rem;
+	font-size: 1.75rem;
+	line-height: 3rem;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+/* Blame Square. */
+.infoName::first-letter {
+	text-transform: uppercase;
+}
+
 /* TODO: rotation-specific? */
 .item {
 	position: relative;

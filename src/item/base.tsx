@@ -6,11 +6,26 @@ import styles from './base.module.css'
 export enum View {
 	ROTATION,
 	OVERLAY,
+	PALETTE,
 }
 
 export interface ItemViewProps<I extends Item> {
 	item: I
 	view: View
+}
+
+export interface PaletteInfoProps {
+	icon: ReactNode
+	name: string
+}
+
+export function PaletteInfo({icon, name}: PaletteInfoProps) {
+	return (
+		<ItemWrapper className={styles.info}>
+			{icon}
+			<span className={styles.infoName}>{name}</span>
+		</ItemWrapper>
+	)
 }
 
 export type WrapperProps = JSX.IntrinsicElements['div']
@@ -20,6 +35,7 @@ export interface ItemWrapperProps {
 	children?: ReactNode
 	className?: string
 }
+
 export function ItemWrapper({children, className}: ItemWrapperProps) {
 	const wrapperProps = useContext(WrapperContext)
 

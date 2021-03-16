@@ -8,6 +8,7 @@ import {
 import cx from 'classnames'
 import {useUpdateAtom} from 'jotai/utils'
 import {ReactNode, useEffect, useMemo, useRef, useState} from 'react'
+import {ItemView, View, WrapperContext, WrapperProps} from '../item'
 import {getDraggableId, Item, itemFamily} from '../state'
 import {Container, ContainerHeader, Heading} from '../ui'
 import {
@@ -18,7 +19,6 @@ import {
 	getRoleCategory,
 	utilityCategory,
 } from './category'
-import {PaletteItemView} from './item'
 import {Job, JobSelect} from './jobSelect'
 import styles from './palette.module.css'
 
@@ -159,11 +159,19 @@ function DraggableItemView({item}: DraggableItemViewProps) {
 	idRef.current = id
 	useEffect(() => () => itemFamily.remove(idRef.current), [])
 
+	// Props to pass down into the draggable element
+	const wrapperProps: WrapperProps = {
+		ref: setNodeRef,
+		className: styles.draggable,
+		...attributes,
+		...listeners,
+	}
+
 	// todo might be able to avoid the wrapper. consider.
 	// todo merge all item views back together again i guess?
 	return (
-		<div ref={setNodeRef} {...attributes} {...listeners}>
-			<PaletteItemView item={item} />
-		</div>
+		<WrapperContext.Provider value={wrapperProps}>
+			<ItemView item={item} view={View.PALETTE} />
+		</WrapperContext.Provider>
 	)
 }
