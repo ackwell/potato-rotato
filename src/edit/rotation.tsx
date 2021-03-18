@@ -38,7 +38,7 @@ function EditItem({id, item}: RotationItemProps) {
 
 	return (
 		<WrapperContext.Provider value={wrapperProps}>
-			<ItemView item={item} view={View.ROTATION} />
+			<ItemView item={item} view={View.EDIT} />
 		</WrapperContext.Provider>
 	)
 }

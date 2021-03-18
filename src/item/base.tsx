@@ -4,7 +4,8 @@ import {Item} from '../state'
 import styles from './base.module.css'
 
 export enum View {
-	ROTATION,
+	EDIT,
+	VIEW,
 	OVERLAY,
 	PALETTE,
 }

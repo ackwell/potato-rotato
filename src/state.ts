@@ -5,6 +5,13 @@ import msgpack from 'msgpack-lite'
 import pako from 'pako'
 import {exists} from './utils'
 
+export enum Mode {
+	EDIT = 'edit',
+	VIEW = 'view',
+}
+
+export const modeAtom = atom<Mode>(Mode.EDIT)
+
 export enum ItemType {
 	ACTION = 0,
 	PULL = 1,

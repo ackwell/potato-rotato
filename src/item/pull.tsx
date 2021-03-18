@@ -16,7 +16,7 @@ export function PullItemView({view}: ItemViewProps<PullItem>) {
 	}
 	return (
 		<ItemWrapper
-			className={cx(styles.pull, view === View.ROTATION && styles.shroud)}
+			className={cx(styles.pull, view === View.EDIT && styles.shroud)}
 		>
 			{text}
 		</ItemWrapper>

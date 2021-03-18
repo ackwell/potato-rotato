@@ -1,7 +1,7 @@
 import {useAtom} from 'jotai'
 import {ComponentType, forwardRef} from 'react'
 import styles from './rotation.module.css'
-import {Item, itemFamily, rotationAtom} from './state'
+import {Item, itemFamily, Mode, modeAtom, rotationAtom} from './state'
 import {Heading, Container, ContainerHeader} from './ui'
 
 export interface RotationItemProps {
@@ -16,11 +16,27 @@ export interface RotationProps {
 export const Rotation = forwardRef<HTMLDivElement, RotationProps>(
 	function Rotation({Item}, ref) {
 		const [ids] = useAtom(rotationAtom)
+		const [mode, setMode] = useAtom(modeAtom)
 
 		return (
 			<>
 				<ContainerHeader>
 					<Heading>Rotation</Heading>
+					{/* This isn't the _best_ UX, let's be real. Find a better spot? */}
+					<div>
+						<button
+							disabled={mode === Mode.EDIT}
+							onClick={() => setMode(Mode.EDIT)}
+						>
+							Edit
+						</button>
+						<button
+							disabled={mode === Mode.VIEW}
+							onClick={() => setMode(Mode.VIEW)}
+						>
+							View
+						</button>
+					</div>
 				</ContainerHeader>
 				<Container>
 					<div ref={ref} className={styles.rotation}>
