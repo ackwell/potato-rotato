@@ -1,6 +1,6 @@
 import Tooltip from '@reach/tooltip'
 import {TooltipDetail} from '@xivanalysis/tooltips'
-import cx from 'classnames'
+import cx from 'clsx'
 import {ReactNode} from 'react'
 import {useActionData} from '../data'
 import {ActionItem} from '../state'

@@ -1,4 +1,4 @@
-import cx from 'classnames'
+import cx from 'clsx'
 import {createContext, ReactNode, useContext} from 'react'
 import {Item} from '../state'
 import styles from './base.module.css'

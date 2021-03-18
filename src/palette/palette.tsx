@@ -5,7 +5,7 @@ import {
 	AccordionItem,
 	AccordionPanel,
 } from '@reach/accordion'
-import cx from 'classnames'
+import cx from 'clsx'
 import {useUpdateAtom} from 'jotai/utils'
 import {ReactNode, useEffect, useMemo, useRef, useState} from 'react'
 import {ItemView, View, WrapperContext, WrapperProps} from '../item'

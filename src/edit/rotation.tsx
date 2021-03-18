@@ -1,7 +1,7 @@
 import {useDroppable} from '@dnd-kit/core'
 import {SortableContext, useSortable} from '@dnd-kit/sortable'
 import {CSS} from '@dnd-kit/utilities'
-import cx from 'classnames'
+import cx from 'clsx'
 import {useAtom} from 'jotai'
 import {ItemView, WrapperContext, WrapperProps} from '../item'
 import {View} from '../item'

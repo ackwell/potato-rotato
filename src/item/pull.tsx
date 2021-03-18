@@ -1,4 +1,4 @@
-import cx from 'classnames'
+import cx from 'clsx'
 import {PullItem} from '../state'
 import {ItemViewProps, ItemWrapper, PaletteInfo, View} from './base'
 import styles from './pull.module.css'
