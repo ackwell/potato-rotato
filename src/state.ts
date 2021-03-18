@@ -1,5 +1,5 @@
 import {bytesToBase64, base64ToBytes} from 'byte-base64'
-import {atom} from 'jotai'
+import {atom, PrimitiveAtom} from 'jotai'
 import {atomFamily} from 'jotai/utils'
 import msgpack from 'msgpack-lite'
 import pako from 'pako'
@@ -32,7 +32,7 @@ export const itemFamily = atomFamily(
 	(id: string) => undefined as Item | undefined,
 )
 
-export const serialisedRotationAtom = atom(
+const serialisedRotationAtom = atom(
 	get => {
 		// Turn the rotation into a list of items - IDs are only relevant to a single runtime
 		const rotation = get(rotationAtom)
@@ -61,5 +61,17 @@ export const serialisedRotationAtom = atom(
 		})
 
 		set(rotationAtom, ids)
+	},
+)
+
+const urlSegments = [modeAtom as PrimitiveAtom<string>, serialisedRotationAtom]
+const urlSeparator = '/'
+
+export const serialisedStateAtom = atom(
+	get => urlSegments.map(get).join(urlSeparator),
+	(get, set, update: string) => {
+		update
+			.split(urlSeparator, urlSegments.length)
+			.forEach((value, index) => set(urlSegments[index], value))
 	},
 )

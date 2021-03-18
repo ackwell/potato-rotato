@@ -1,6 +1,6 @@
 import {useAtom} from 'jotai'
 import {Edit} from './edit'
-import {Mode, modeAtom, serialisedRotationAtom} from './state'
+import {Mode, modeAtom, serialisedStateAtom} from './state'
 import {AtomUrlPersister} from './utils'
 import {View} from './view'
 
@@ -11,7 +11,7 @@ export function App() {
 	return (
 		<>
 			<ModeComponent />
-			<AtomUrlPersister atom={serialisedRotationAtom} />
+			<AtomUrlPersister atom={serialisedStateAtom} />
 		</>
 	)
 }
