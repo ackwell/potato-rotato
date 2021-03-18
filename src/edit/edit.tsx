@@ -12,12 +12,12 @@ import {
 import {arrayMove, sortableKeyboardCoordinates} from '@dnd-kit/sortable'
 import {useAtom} from 'jotai'
 import {useState} from 'react'
-import {Header} from './header'
-import {ItemView, View} from './item'
-import {Palette} from './palette'
+import {Header} from '../header'
+import {ItemView, View} from '../item'
+import {Palette} from '../palette'
+import {itemFamily, rotationAtom} from '../state'
+import {Stack} from '../ui'
 import {Rotation, ROTATION_ID} from './rotation'
-import {itemFamily, rotationAtom} from './state'
-import {Stack} from './ui'
 
 export function Edit() {
 	const [rotation, setRotation] = useAtom(rotationAtom)
