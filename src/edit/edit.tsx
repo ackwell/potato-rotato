@@ -17,7 +17,7 @@ import {ItemView, View} from '../item'
 import {Palette} from '../palette'
 import {itemFamily, rotationAtom} from '../state'
 import {Stack} from '../ui'
-import {Rotation, ROTATION_ID} from './rotation'
+import {EditRotation, ROTATION_ID} from './rotation'
 
 export function Edit() {
 	const [rotation, setRotation] = useAtom(rotationAtom)
@@ -109,7 +109,7 @@ export function Edit() {
 		>
 			<Stack>
 				<Header />
-				<Rotation />
+				<EditRotation />
 				<Palette />
 			</Stack>
 			<DragOverlay>

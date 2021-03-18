@@ -3,50 +3,27 @@ import {SortableContext, useSortable} from '@dnd-kit/sortable'
 import {CSS} from '@dnd-kit/utilities'
 import cx from 'classnames'
 import {useAtom} from 'jotai'
-import {ItemView, View} from '../item'
-import {WrapperProps, WrapperContext} from '../item'
-import {itemFamily, rotationAtom} from '../state'
-import {Heading, Container, ContainerHeader} from '../ui'
+import {ItemView, WrapperContext, WrapperProps} from '../item'
+import {View} from '../item'
+import {Rotation, RotationItemProps} from '../rotation'
+import {rotationAtom} from '../state'
 import styles from './rotation.module.css'
 
 export const ROTATION_ID = 'ROTATION'
 
-export function Rotation() {
+export function EditRotation() {
 	const {setNodeRef} = useDroppable({id: ROTATION_ID})
-
 	const [ids] = useAtom(rotationAtom)
 
 	return (
-		<>
-			<ContainerHeader>
-				<Heading>Rotation</Heading>
-			</ContainerHeader>
-			<Container>
-				<div ref={setNodeRef} className={styles.rotation}>
-					<SortableContext items={ids}>
-						{ids.map(id => (
-							<SortableItemView key={id} id={id} />
-						))}
-					</SortableContext>
-				</div>
-			</Container>
-		</>
+		<SortableContext items={ids}>
+			<Rotation ref={setNodeRef} Item={EditItem} />
+		</SortableContext>
 	)
 }
 
-interface SortableItemViewProps {
-	id: string
-}
-
-function SortableItemView({id}: SortableItemViewProps) {
-	const [item] = useAtom(itemFamily(id))
+function EditItem({id, item}: RotationItemProps) {
 	const sortable = useSortable({id})
-
-	if (item == null) {
-		throw new Error(
-			`Invariant: Could not obtain item data for rotation item with ID ${id}`,
-		)
-	}
 
 	const wrapperProps: WrapperProps = {
 		ref: sortable.setNodeRef,

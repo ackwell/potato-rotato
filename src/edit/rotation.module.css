@@ -1,14 +1,3 @@
-@value itemWidth: 5rem;
-
-.rotation {
-	display: grid;
-	grid-template-columns: repeat(auto-fill, itemWidth);
-	row-gap: 2rem;
-
-	/* should probably replace this with a placeholder "drop stuff here" */
-	min-height: 32px;
-}
-
 .draggable {
 	touch-action: none;
 	cursor: grab;
