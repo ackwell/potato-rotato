@@ -7,7 +7,7 @@ export function View() {
 	return (
 		<Stack>
 			<Header />
-			<Rotation Item={ViewItem} />
+			<Rotation Item={ViewItem} layout="flex" />
 		</Stack>
 	)
 }

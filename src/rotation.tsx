@@ -1,3 +1,4 @@
+import cx from 'clsx'
 import {useAtom} from 'jotai'
 import {ComponentType, forwardRef} from 'react'
 import styles from './rotation.module.css'
@@ -11,10 +12,11 @@ export interface RotationItemProps {
 
 export interface RotationProps {
 	Item: ComponentType<RotationItemProps>
+	layout: 'grid' | 'flex'
 }
 
 export const Rotation = forwardRef<HTMLDivElement, RotationProps>(
-	function Rotation({Item}, ref) {
+	function Rotation({Item, layout}, ref) {
 		const [ids] = useAtom(rotationAtom)
 		const [mode, setMode] = useAtom(modeAtom)
 
@@ -39,9 +41,14 @@ export const Rotation = forwardRef<HTMLDivElement, RotationProps>(
 					</div>
 				</ContainerHeader>
 				<Container>
-					<div ref={ref} className={styles.rotation}>
+					<div ref={ref} className={cx(styles.rotation, styles[layout])}>
 						{ids.map(id => (
-							<ResolveItemId key={id} id={id} Item={Item} />
+							// Hm. Ideally, Item would have extra style applied to it, rather than
+							// a cruddy wrapper. TODO: Think about how to achieve that cleanly.
+							// Maybe i should just take this back to two seperate rotation components...
+							<div key={id} className={styles.item}>
+								<ResolveItemId key={id} id={id} Item={Item} />
+							</div>
 						))}
 					</div>
 				</Container>

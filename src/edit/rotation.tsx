@@ -17,7 +17,7 @@ export function EditRotation() {
 
 	return (
 		<SortableContext items={ids}>
-			<Rotation ref={setNodeRef} Item={EditItem} />
+			<Rotation ref={setNodeRef} Item={EditItem} layout="grid" />
 		</SortableContext>
 	)
 }
