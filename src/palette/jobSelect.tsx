@@ -57,23 +57,27 @@ interface XivApiJob {
 	Abbreviation_en: string
 }
 
+let jobCache: Job[] | undefined
+
 function useJobs() {
-	const [jobs, setJobs] = useState<Job[]>()
+	const [jobs, setJobs] = useState(jobCache)
 	useEffect(() => {
+		if (jobCache != null) {
+			return
+		}
 		fetchXivapi<XivApiListing<XivApiJob>>(
 			'ClassJob?columns=ID,Name,ClassJobParentTargetID,ItemSoulCrystalTargetID,DohDolJobIndex,Abbreviation_en',
 		).then(json => {
-			setJobs(
-				json.Results.filter(
-					job => job.ItemSoulCrystalTargetID > 0 && job.DohDolJobIndex === '-1',
-				).map(job => ({
-					id: job.ID,
-					name: job.Name,
-					parentId: job.ClassJobParentTargetID,
-					// This is a relatively tenuous link. Blame miu if it breaks.
-					classJobCategoryKey: job.Abbreviation_en,
-				})),
-			)
+			jobCache = json.Results.filter(
+				job => job.ItemSoulCrystalTargetID > 0 && job.DohDolJobIndex === '-1',
+			).map(job => ({
+				id: job.ID,
+				name: job.Name,
+				parentId: job.ClassJobParentTargetID,
+				// This is a relatively tenuous link. Blame miu if it breaks.
+				classJobCategoryKey: job.Abbreviation_en,
+			}))
+			setJobs(jobCache)
 		})
 	}, [])
 	return jobs

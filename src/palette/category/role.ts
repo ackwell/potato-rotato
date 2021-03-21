@@ -24,9 +24,18 @@ async function fetchActions(job: Job) {
 	).map(action => ({type: ItemType.ACTION, action: action.ID}))
 }
 
+const actionCache = new Map<number, ReturnType<typeof fetchActions>>()
+
 export function getRoleCategory(job: Job): Category {
 	return {
 		name: 'Role Actions',
-		fetchItems: () => fetchActions(job),
+		fetchItems: () => {
+			let promise = actionCache.get(job.id)
+			if (promise == null) {
+				promise = fetchActions(job)
+				actionCache.set(job.id, promise)
+			}
+			return promise
+		},
 	}
 }

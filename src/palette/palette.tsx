@@ -6,6 +6,7 @@ import {
 	AccordionPanel,
 } from '@reach/accordion'
 import cx from 'clsx'
+import {atom, useAtom} from 'jotai'
 import {useUpdateAtom} from 'jotai/utils'
 import {ReactNode, useEffect, useMemo, useRef, useState} from 'react'
 import {ItemView, View, WrapperContext, WrapperProps} from '../item'
@@ -24,8 +25,11 @@ import styles from './palette.module.css'
 
 import '@reach/accordion/styles.css'
 
+// TODO: Consider encoding job in URL?
+const jobAtom = atom<Job | undefined>(undefined)
+
 export function Palette() {
-	const [job, setJob] = useState<Job>()
+	const [job, setJob] = useAtom(jobAtom)
 
 	const categories = useMemo(() => {
 		return job == null

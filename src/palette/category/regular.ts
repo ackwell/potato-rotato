@@ -43,12 +43,7 @@ async function fetchActionIndirection() {
 	return {hide, extras}
 }
 
-let indirectionCache: ReturnType<typeof fetchActionIndirection> | undefined
-async function fetchActions(job: Job) {
-	if (indirectionCache == null) {
-		indirectionCache = fetchActionIndirection()
-	}
-
+async function fetchRegularActions(job: Job) {
 	const filters = [
 		// ARR jobs use skills from their parent job
 		`ClassJobTargetID|=${job.id};${job.parentId}`,
@@ -58,10 +53,30 @@ async function fetchActions(job: Job) {
 		'IsPvP=0',
 	].join(',')
 
-	const [{Results: regularActions}, {hide, extras}] = await Promise.all([
-		fetchXivapi<XivApiListing<XivApiAction>>(
-			`search?indexes=action&filters=${filters}&columns=ID,ClassJobLevel`,
-		),
+	return fetchXivapi<XivApiListing<XivApiAction>>(
+		`search?indexes=action&filters=${filters}&columns=ID,ClassJobLevel`,
+	).then(results => results.Results)
+}
+
+let indirectionCache: ReturnType<typeof fetchActionIndirection> | undefined
+const regularActionCache = new Map<
+	number,
+	ReturnType<typeof fetchRegularActions>
+>()
+
+async function fetchActions(job: Job) {
+	if (indirectionCache == null) {
+		indirectionCache = fetchActionIndirection()
+	}
+
+	let jobActionPromise = regularActionCache.get(job.id)
+	if (jobActionPromise == null) {
+		jobActionPromise = fetchRegularActions(job)
+		regularActionCache.set(job.id, jobActionPromise)
+	}
+
+	const [regularActions, {hide, extras}] = await Promise.all([
+		jobActionPromise,
 		indirectionCache,
 	])
 
