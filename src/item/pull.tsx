@@ -3,6 +3,8 @@ import {PullItem} from '../state'
 import {ItemViewProps, ItemWrapper, PaletteInfo, View} from './base'
 import styles from './pull.module.css'
 
+const shroudViews = new Set([View.EDIT, View.VIEW])
+
 export function PullItemView({view}: ItemViewProps<PullItem>) {
 	const text = <span className={styles.pullText}>Pull</span>
 
@@ -14,9 +16,10 @@ export function PullItemView({view}: ItemViewProps<PullItem>) {
 			/>
 		)
 	}
+
 	return (
 		<ItemWrapper
-			className={cx(styles.pull, view === View.EDIT && styles.shroud)}
+			className={cx(styles.pull, shroudViews.has(view) && styles.shroud)}
 		>
 			{text}
 		</ItemWrapper>
