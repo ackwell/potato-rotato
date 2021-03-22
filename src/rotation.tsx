@@ -1,9 +1,27 @@
+import {faEye, faPen, IconDefinition} from '@fortawesome/free-solid-svg-icons'
+import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import cx from 'clsx'
 import {useAtom} from 'jotai'
 import {ComponentType, forwardRef} from 'react'
 import styles from './rotation.module.css'
 import {Item, itemFamily, Mode, modeAtom, rotationAtom} from './state'
 import {Heading, Container, ContainerHeader} from './ui'
+
+interface ModeData {
+	label: string
+	icon: IconDefinition
+}
+
+const modes: Record<Mode, ModeData> = {
+	[Mode.EDIT]: {
+		label: 'Edit',
+		icon: faPen,
+	},
+	[Mode.VIEW]: {
+		label: 'View',
+		icon: faEye,
+	},
+}
 
 export interface RotationItemProps {
 	id: string
@@ -20,24 +38,30 @@ export const Rotation = forwardRef<HTMLDivElement, RotationProps>(
 		const [ids] = useAtom(rotationAtom)
 		const [mode, setMode] = useAtom(modeAtom)
 
+		const nextMode = mode === Mode.VIEW ? Mode.EDIT : Mode.VIEW
+		const nextModeData = modes[nextMode]
+
+		function swapMode() {
+			setMode(nextMode)
+		}
+
 		return (
 			<>
 				<ContainerHeader>
 					<Heading>Rotation</Heading>
 					{/* This isn't the _best_ UX, let's be real. Find a better spot? */}
 					<div>
-						<button
-							disabled={mode === Mode.EDIT}
-							onClick={() => setMode(Mode.EDIT)}
+						<Heading
+							element="button"
+							onClick={swapMode}
+							className={styles.modeButton}
 						>
-							Edit
-						</button>
-						<button
-							disabled={mode === Mode.VIEW}
-							onClick={() => setMode(Mode.VIEW)}
-						>
-							View
-						</button>
+							<FontAwesomeIcon
+								icon={nextModeData.icon}
+								className={styles.icon}
+							/>
+							{nextModeData.label} rotation
+						</Heading>
 					</div>
 				</ContainerHeader>
 				<Container>
