@@ -15,11 +15,13 @@ export const modeAtom = atom<Mode>(Mode.EDIT)
 export enum ItemType {
 	ACTION = 0,
 	PULL = 1,
+	ANNOTATION = 2,
 }
 
 export type ActionItem = {type: ItemType.ACTION; action: number}
 export type PullItem = {type: ItemType.PULL}
-export type Item = ActionItem | PullItem
+export type AnnotationItem = {type: ItemType.ANNOTATION}
+export type Item = ActionItem | PullItem | AnnotationItem
 
 // thanks i hate it
 let nextDraggableId = 0

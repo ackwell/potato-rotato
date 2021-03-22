@@ -1,5 +1,6 @@
 import {Item, ItemType} from '../state'
 import {ActionItemView} from './action'
+import {AnnotationItemView} from './annotation'
 import {ItemViewProps as InternalItemViewProps} from './base'
 import {PullItemView} from './pull'
 
@@ -11,6 +12,8 @@ export function ItemView(props: ItemViewProps) {
 			return <ActionItemView {...props} item={props.item} />
 		case ItemType.PULL:
 			return <PullItemView {...props} item={props.item} />
+		case ItemType.ANNOTATION:
+			return <AnnotationItemView {...props} item={props.item} />
 		default:
 			return <div>UNK:{ItemType[(props.item as any).type]}</div>
 	}
