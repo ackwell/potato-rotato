@@ -13,6 +13,10 @@
 	background: themeBackground3;
 }
 
+.pull.slim {
+	width: 2.5rem;
+}
+
 .pull.shroud::before,
 .pull.shroud::after {
 	content: '';
@@ -36,10 +40,15 @@
 	height: 100vh;
 }
 
-/* This is semi copied from header. TODO: Consolidate typography. */
 .pullText {
 	text-transform: uppercase;
+}
+.slim .pullText {
+	transform: rotate(90deg);
+}
 
+/* This is semi copied from header. TODO: Consolidate typography. */
+.pullText {
 	font-family: 'Teko', sans-serif;
 	font-size: 19.1693px;
 	line-height: 20px;

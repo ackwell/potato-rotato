@@ -19,7 +19,11 @@ export function PullItemView({view}: ItemViewProps<PullItem>) {
 
 	return (
 		<ItemWrapper
-			className={cx(styles.pull, shroudViews.has(view) && styles.shroud)}
+			className={cx(
+				styles.pull,
+				shroudViews.has(view) && styles.shroud,
+				view === View.VIEW && styles.slim,
+			)}
 		>
 			{text}
 		</ItemWrapper>
